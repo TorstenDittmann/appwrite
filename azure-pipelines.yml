@@ -17,16 +17,16 @@ steps:
 - script: docker buildx create --use
   displayName: 'Setup Multi Build'
 
-- script: |
-    docker-compose up -d
-    sleep 30
+- script: docker-compose up -d
   displayName: 'Setup Appwrite'
 
 - script: |
-    sleep 30
     docker ps
     docker-compose logs appwrite
     docker-compose exec appwrite doctor
     docker-compose exec appwrite vars
+  displayName: 'Show Status'
+
+- script: |
     docker-compose exec appwrite test
   displayName: 'Run Tests'
