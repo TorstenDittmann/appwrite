@@ -9,6 +9,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_INTERACTIVE_NO_CLI: 1
+
 steps:
 - script: docker buildx create --use
   displayName: 'Setup Multi Build'
