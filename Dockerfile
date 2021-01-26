@@ -81,9 +81,11 @@ ENV TZ=Asia/Tel_Aviv \
 #ENV _APP_SMTP_PASSWORD ''
 
 COPY --from=builder /phpredis-5.2.1/modules/redis.so /usr/lib/php/20190902/
+RUN true
 COPY --from=builder /phpredis-5.2.1/modules/redis.so /usr/lib/php/20190902/
+RUN true
 COPY --from=builder /ngx_brotli /ngx_brotli
-
+RUN true
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN \
