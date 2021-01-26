@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: docker buildx create --use
+  displayName: 'Setup Multi Build'
+
+- script: |
+    docker-compose up -d
+    sleep 10
+  displayName: 'Setup Appwrite'
+
+- script: |
+    docker ps
+    docker-compose logs appwrite
+    docker-compose exec appwrite doctor
+    docker-compose exec appwrite vars
+    docker-compose exec appwrite test
+  displayName: 'Run Tests'
