@@ -19,6 +19,7 @@ steps:
   displayName: 'Setup Appwrite'
 
 - script: |
+    sleep 30
     docker ps
     docker-compose logs appwrite
     docker-compose exec appwrite doctor
