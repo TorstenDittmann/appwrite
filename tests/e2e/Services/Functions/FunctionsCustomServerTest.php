@@ -535,14 +535,14 @@ class FunctionsCustomServerTest extends Scope
                 'command' => 'deno run --allow-env index.ts',
                 'timeout' => 15,
             ],
-            /*[
+            [
                 'language' => 'Dart',
                 'version' => '2.10',
                 'name' => 'dart-2.10',
                 'code' => $functions.'/dart.tar.gz',
-                'command' => 'dart run main.dart',
+                'command' => 'dart main.dart',
                 'timeout' => 15,
-            ],*/
+            ],
             [
                 'language' => '.NET',
                 'version' => '3.1',
@@ -561,8 +561,8 @@ class FunctionsCustomServerTest extends Scope
             ],
         ];
 
-        sleep(count($envs) * 25);
-
+        sleep(count($envs) * 20);
+        fwrite(STDERR, ".");
         /**
          * Test for SUCCESS
          */
@@ -677,6 +677,7 @@ class FunctionsCustomServerTest extends Scope
             $this->assertEquals($stdout[4], $language);
             $this->assertEquals($stdout[5], $version);
             // $this->assertEquals($stdout[6], $fileId);
+            fwrite(STDERR, ".");
         }
 
         return [
