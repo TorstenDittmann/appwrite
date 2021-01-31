@@ -43,6 +43,6 @@ jobs:
     - download: current
       artifact: Appwrite
     - script: |
-        docker load --input ./appwrite.tar
+        docker load --input $(Pipeline.Workspace)/appwrite.tar
         docker-compose exec appwrite $(Path)
       displayName: 'Run Tests'
