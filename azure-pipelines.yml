@@ -13,12 +13,22 @@ variables:
   DOCKER_BUILDKIT: 1
   COMPOSE_INTERACTIVE_NO_CLI: 1
 
+strategy:
+  maxParallel: 5
+  matrix: 
+    E2E:
+      Path: /usr/src/code/tests/e2e
+    Unit:
+      Path: /usr/src/code/tests/unit
+
 steps:
 - script: docker buildx create --use
   displayName: 'Setup Multi Build'
 
-- script: docker-compose up -d
+- script: docker build -o type=docker,dest=$(System.DefaultWorkingDirectory)/tmp/appwrite.tar
   displayName: 'Setup Appwrite'
+- publish: $(System.DefaultWorkingDirectory)/tmp/appwrite.tar
+  artifact: Appwrite
 
 - script: |
     docker ps
@@ -28,5 +38,5 @@ steps:
   displayName: 'Show Status'
 
 - script: |
-    docker-compose exec appwrite test
+    docker-compose exec appwrite $(Path)
   displayName: 'Run Tests'
