@@ -17,9 +17,9 @@ jobs:
   steps:
   - script: docker buildx create --use
     displayName: 'Setup Multi Build'
-  - script: docker build -o type=tar,dest=$(System.DefaultWorkingDirectory)/tmp/appwrite.tar .
+  - script: docker build -o type=tar,dest=./appwrite.tar .
     displayName: 'Setup Appwrite'
-  - publish: $(System.DefaultWorkingDirectory)/tmp/appwrite.tar
+  - publish: ./appwrite.tar
     artifact: Appwrite
   - script: |
         docker ps
