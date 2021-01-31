@@ -29,6 +29,7 @@ jobs:
     displayName: 'Show Status'
 
 - job: Test
+  dependsOn: Setup
   pool:
     vmImage: 'ubuntu-latest'
   strategy:
