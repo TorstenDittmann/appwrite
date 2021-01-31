@@ -42,5 +42,7 @@ jobs:
   steps:
     - download: current
       artifact: Appwrite
-    - script: docker-compose exec appwrite $(Path)
+    - script: |
+        docker load --input $(System.DefaultWorkingDirectory)/tmp/appwrite.tar
+        docker-compose exec appwrite $(Path)
       displayName: 'Run Tests'
