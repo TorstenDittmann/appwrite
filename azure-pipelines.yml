@@ -22,6 +22,7 @@ jobs:
   - publish: ./appwrite.tar
     artifact: Appwrite
   - script: |
+        docker-compose up -d
         docker ps
         docker-compose logs appwrite
         docker-compose exec appwrite doctor
