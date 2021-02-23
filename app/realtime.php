@@ -63,8 +63,6 @@ $server->on("workerStart", function ($server, $workerId) use (&$subscriptions, &
             }
 
             $redis->subscribe(['realtime'], function($redis, $channel, $message) use ($server, $workerId, &$connections) {
-                $message = 'Message from worker #'.$workerId.'; '.$message;
-
                 // TODO get project and resource ID and itterate over the resource read(?) permissions and send a message to all listeners
 
                 /**
@@ -194,11 +192,6 @@ $server->on('open', function(Server $server, Request $request) use (&$connection
         'roles' => $roles,
     ];
 
-    var_dump($project->getId());
-    var_dump($project->getAttribute('name'));
-    var_dump($user->getId());
-    var_dump($user->getAttribute('name'));
-
     $server->push($connection, json_encode($subscriptions));
 });
 
@@ -209,7 +202,7 @@ $server->on('message', function(Server $server, Frame $frame) {
 
     Console::info('Recieved message: '.$frame->data.' (user: '.$frame->fd.', worker: '.$server->getWorkerId().')');
 
-    $server->push($frame->fd, json_encode(["hello, worker_id:".$server->getWorkerId(), time()]));
+    //$server->push($frame->fd, json_encode(["hello, worker_id:".$server->getWorkerId(), time()]));
 });
 
 $server->on('close', function(Server $server, int $fd) use (&$connections, &$subscriptions) {
@@ -238,7 +231,6 @@ $server->on('close', function(Server $server, int $fd) use (&$connections, &$sub
 
     Console::info('Connection close: '.$fd);
 
-    var_dump($subscriptions);
 });
 
 $server->start();
