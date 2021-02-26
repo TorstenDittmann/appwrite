@@ -6,46 +6,27 @@
 trigger:
 - main
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 variables:
   DOCKER_BUILDKIT: 1
   COMPOSE_INTERACTIVE_NO_CLI: 1
 
-jobs:
-- job: Setup
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - script: docker buildx create --use
-    displayName: 'Setup Multi Build'
-  - script: docker build -o type=tar,dest=./appwrite.tar .
-    displayName: 'Setup Appwrite'
-  - publish: ./appwrite.tar
-    artifact: Appwrite
-  - script: |
-        docker load --input ./appwrite.tar
-        docker-compose up -d
-        docker ps
-        docker-compose logs appwrite
-        docker-compose exec appwrite doctor
-        docker-compose exec appwrite vars
-    displayName: 'Show Status'
+steps:
+- script: docker buildx create --use
+  displayName: 'Setup Multi Build'
 
-- job: Test
-  dependsOn: Setup
-  pool:
-    vmImage: 'ubuntu-latest'
-  strategy:
-    maxParallel: 2
-    matrix: 
-      E2E:
-        Path: /usr/src/code/tests/e2e
-      Unit:
-        Path: /usr/src/code/tests/unit
-  steps:
-    - download: current
-      artifact: Appwrite
-    - script: |
-        docker load --input $(Pipeline.Workspace)/appwrite.tar
-        docker-compose up -d
-        docker-compose exec appwrite $(Path)
-      displayName: 'Run Tests'
+- script: docker-compose up -d
+  displayName: 'Setup Appwrite'
+
+- script: |
+    docker ps
+    docker-compose logs appwrite
+    docker-compose exec appwrite doctor
+    docker-compose exec appwrite vars
+  displayName: 'Show Status'
+
+- script: |
+    docker-compose exec appwrite test
+  displayName: 'Run Tests'
