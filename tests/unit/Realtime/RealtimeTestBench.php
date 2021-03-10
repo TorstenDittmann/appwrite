@@ -237,7 +237,7 @@ class RealtimeTestBench
     {
         $event = [
             'project' => '1',
-            'permissions' => ['user:user10'],
+            'permissions' => ['role:member'],
             'data' => [
                 'channels' => [
                     0 => 'collections.2.documents',
