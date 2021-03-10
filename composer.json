@@ -64,7 +64,8 @@
         "phpunit/phpunit": "9.4.2",
         "swoole/ide-helper": "4.5.5",
         "textalk/websocket": "1.5.2",
-        "vimeo/psalm": "4.1.1"
+        "vimeo/psalm": "4.1.1",
+        "phpbench/phpbench": "1.0.x-dev"
     },
     "repositories": [
         {

@@ -1,0 +1,5 @@
+{
+    "bootstrap": "vendor/autoload.php",
+    "path": "tests/unit/Realtime",
+    "time_unit": "milliseconds"
+}
