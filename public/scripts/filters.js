@@ -133,7 +133,7 @@ window.ls.filter
     let thresh = 1000;
 
     if (Math.abs($value) < thresh) {
-      return $value + " B";
+      return $value;
     }
 
     let units = ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
@@ -144,12 +144,28 @@ window.ls.filter
       ++u;
     } while (Math.abs($value) >= thresh && u < units.length - 1);
 
-    return (
-      $value.toFixed(1) +
-      '<span class="text-size-small unit">' +
-      units[u] +
-      "</span>"
-    );
+    return $value.toFixed(1);
+  })
+  .add("humanFileUnit", function($value) {
+    if (!$value) {
+      return '';
+    }
+
+    let thresh = 1000;
+
+    if (Math.abs($value) < thresh) {
+      return 'B';
+    }
+
+    let units = ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    let u = -1;
+
+    do {
+      $value /= thresh;
+      ++u;
+    } while (Math.abs($value) >= thresh && u < units.length - 1);
+
+    return units[u];
   })
   .add("statsTotal", function($value) {
     if (!$value) {
@@ -219,22 +235,22 @@ window.ls.filter
     return $value.join(", ").replace(/,\s([^,]+)$/, ' and $1');
   })
   .add("envName", function($value, env) {
-    if(env && env.ENVIRONMENTS && env.ENVIRONMENTS[$value]) {
-      return env.ENVIRONMENTS[$value].name;
+    if(env && env.RUNTIMES && env.RUNTIMES[$value]) {
+      return env.RUNTIMES[$value].name;
     }
 
     return '';
   })
   .add("envLogo", function($value, env) {
-    if(env && env.ENVIRONMENTS && env.ENVIRONMENTS[$value]) {
-      return env.ENVIRONMENTS[$value].logo;
+    if(env && env.RUNTIMES && env.RUNTIMES[$value]) {
+      return env.RUNTIMES[$value].logo;
     }
 
     return '';
   })
   .add("envVersion", function($value, env) {
-    if(env && env.ENVIRONMENTS && env.ENVIRONMENTS[$value]) {
-      return env.ENVIRONMENTS[$value].version;
+    if(env && env.RUNTIMES && env.RUNTIMES[$value]) {
+      return env.RUNTIMES[$value].version;
     }
 
     return '';

@@ -11,52 +11,58 @@ class Rule extends Model
     {
         $this
             ->addRule('$id', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule ID.',
+                'default' => '',
                 'example' => '5e5ea5c16897e',
             ])
             ->addRule('$collection', [ // TODO remove this from public response
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule Collection.',
                 'example' => '5e5e66c16897e',
             ])
             ->addRule('type', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule type. Possible values: ',
+                'default' => '',
                 'example' => 'title',
             ])
             ->addRule('key', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule key.',
+                'default' => '',
                 'example' => 'title',
             ])
             ->addRule('label', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule label.',
+                'default' => '',
                 'example' => 'Title',
             ])
             ->addRule('default', [ // TODO should be of mixed types
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Rule default value.',
-                'example' => 'Movie Name',
                 'default' => '',
+                'example' => 'Movie Name',
             ])
             ->addRule('array', [
-                'type' => 'boolean',
+                'type' => self::TYPE_BOOLEAN,
                 'description' => 'Is array?',
+                'default' => false,
                 'example' => false,
             ])
             ->addRule('required', [
-                'type' => 'boolean',
+                'type' => self::TYPE_BOOLEAN,
                 'description' => 'Is required?',
+                'default' => false,
                 'example' => true,
             ])
             ->addRule('list', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'List of allowed values',
                 'array' => true,
                 'default' => [],
-                'example' => ['5e5ea5c168099'],
+                'example' => '5e5ea5c168099',
             ])
         ;
     }

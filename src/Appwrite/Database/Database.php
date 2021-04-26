@@ -27,6 +27,7 @@ class Database
 
     // Auth, Account and Users (private to user)
     const SYSTEM_COLLECTION_USERS = 'users';
+    const SYSTEM_COLLECTION_SESSIONS = 'sessions';
     const SYSTEM_COLLECTION_TOKENS = 'tokens';
 
     // Teams (shared among team members)
@@ -56,6 +57,11 @@ class Database
      * @var array
      */
     static protected $filters = [];
+
+    /**
+     * @var bool
+     */
+    static protected $statusFilters = true;
 
     /**
      * @var array
@@ -149,7 +155,7 @@ class Database
             'limit' => 15,
             'search' => '',
             'relations' => true,
-            'orderField' => '$id',
+            'orderField' => '',
             'orderType' => 'ASC',
             'orderCast' => 'int',
             'filters' => [],
@@ -214,7 +220,7 @@ class Database
     /**
      * @param array $data
      *
-     * @return Document|bool
+     * @return Document
      *
      * @throws AuthorizationException
      * @throws StructureException
@@ -448,20 +454,59 @@ class Database
         ];
     }
 
+    /**
+     * Disable Attribute decoding
+     *
+     * @return void
+     */
+    public static function disableFilters(): void
+    {
+        self::$statusFilters = false;
+    }
+
+    /**
+     * Enable Attribute decoding
+     *
+     * @return void
+     */
+    public static function enableFilters(): void
+    {
+        self::$statusFilters = true;
+    }
+
     public function encode(Document $document):Document
     {
+        if (!self::$statusFilters) {
+            return $document;
+        }
+
         $collection = $this->getDocument($document->getCollection(), true , false);
         $rules = $collection->getAttribute('rules', []);
 
         foreach ($rules as $key => $rule) {
             $key = $rule->getAttribute('key', null);
-            $filters = $rule->getAttribute('filter', null);
+            $type = $rule->getAttribute('type', null);
+            $array = $rule->getAttribute('array', false);
+            $filters = $rule->getAttribute('filter', []);
             $value = $document->getAttribute($key, null);
 
-            if (($value !== null) && is_array($filters)) {
-                foreach ($filters as $filter) {
-                    $value = $this->encodeAttribute($filter, $value);
-                    $document->setAttribute($key, $value);
+            if (($value !== null)) {
+                if ($type === self::SYSTEM_VAR_TYPE_DOCUMENT) {
+                    if($array) {
+                        $list = [];
+                        foreach ($value as $child) {
+                            $list[] = $this->encode($child);
+                        }
+
+                        $document->setAttribute($key, $list);
+                    } else {
+                        $document->setAttribute($key, $this->encode($value));
+                    }
+                } else {
+                    foreach ($filters as $filter) {
+                        $value = $this->encodeAttribute($filter, $value);
+                        $document->setAttribute($key, $value);
+                    }
                 }
             }
         }
@@ -471,18 +516,37 @@ class Database
 
     public function decode(Document $document):Document
     {
+        if (!self::$statusFilters) {
+            return $document;
+        }
+
         $collection = $this->getDocument($document->getCollection(), true , false);
         $rules = $collection->getAttribute('rules', []);
 
         foreach ($rules as $key => $rule) {
             $key = $rule->getAttribute('key', null);
-            $filters = $rule->getAttribute('filter', null);
+            $type = $rule->getAttribute('type', null);
+            $array = $rule->getAttribute('array', false);
+            $filters = $rule->getAttribute('filter', []);
             $value = $document->getAttribute($key, null);
 
-            if (($value !== null) && is_array($filters)) {
-                foreach (array_reverse($filters) as $filter) {
-                    $value = $this->decodeAttribute($filter, $value);
-                    $document->setAttribute($key, $value);
+            if (($value !== null)) {
+                if ($type === self::SYSTEM_VAR_TYPE_DOCUMENT) {
+                    if($array) {
+                        $list = [];
+                        foreach ($value as $child) {
+                            $list[] = $this->decode($child);
+                        }
+
+                        $document->setAttribute($key, $list);
+                    } else {
+                        $document->setAttribute($key, $this->decode($value));
+                    }
+                } else {
+                    foreach (array_reverse($filters) as $filter) {
+                        $value = $this->decodeAttribute($filter, $value);
+                        $document->setAttribute($key, $value);
+                    }
                 }
             }
         }
@@ -499,6 +563,7 @@ class Database
     static protected function encodeAttribute(string $name, $value)
     {
         if (!isset(self::$filters[$name])) {
+            return $value;
             throw new Exception('Filter not found');
         }
 
@@ -520,6 +585,7 @@ class Database
     static protected function decodeAttribute(string $name, $value)
     {
         if (!isset(self::$filters[$name])) {
+            return $value;
             throw new Exception('Filter not found');
         }
 

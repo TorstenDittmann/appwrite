@@ -13,12 +13,12 @@ use Appwrite\ClamAV\Network;
 use Appwrite\Database\Database;
 use Appwrite\Database\Document;
 use Appwrite\Database\Validator\UID;
-use Appwrite\Storage\Storage;
-use Appwrite\Storage\Validator\File;
-use Appwrite\Storage\Validator\FileSize;
-use Appwrite\Storage\Validator\Upload;
-use Appwrite\Storage\Compression\Algorithms\GZIP;
-use Appwrite\Resize\Resize;
+use Utopia\Storage\Storage;
+use Utopia\Storage\Validator\File;
+use Utopia\Storage\Validator\FileSize;
+use Utopia\Storage\Validator\Upload;
+use Utopia\Storage\Compression\Algorithms\GZIP;
+use Utopia\Image\Image;
 use Appwrite\OpenSSL\OpenSSL;
 use Appwrite\Utopia\Response;
 use Utopia\Config\Config;
@@ -28,30 +28,37 @@ App::post('/v1/storage/files')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.write')
     ->label('event', 'storage.files.create')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'createFile')
     ->label('sdk.description', '/docs/references/storage/create-file.md')
-    ->label('sdk.consumes', 'multipart/form-data')
+    ->label('sdk.request.type', 'multipart/form-data')
     ->label('sdk.methodType', 'upload')
+    ->label('sdk.response.code', Response::STATUS_CODE_CREATED)
+    ->label('sdk.response.type', Response::CONTENT_TYPE_JSON)
+    ->label('sdk.response.model', Response::MODEL_FILE)
     ->param('file', [], new File(), 'Binary file.', false)
-    ->param('read', [], new ArrayList(new Text(64)), 'An array of strings with read permissions. By default no user is granted with any read permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.')
-    ->param('write', [], new ArrayList(new Text(64)), 'An array of strings with write permissions. By default no user is granted with any write permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.')
-    ->action(function ($file, $read, $write, $request, $response, $user, $projectDB, $audits, $usage) {
+    ->param('read', null, new ArrayList(new Text(64)), 'An array of strings with read permissions. By default only the current user is granted with read permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.', true)
+    ->param('write', null, new ArrayList(new Text(64)), 'An array of strings with write permissions. By default only the current user is granted with write permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.', true)
+    ->inject('request')
+    ->inject('response')
+    ->inject('projectDB')
+    ->inject('user')
+    ->inject('audits')
+    ->inject('usage')
+    ->action(function ($file, $read, $write, $request, $response, $projectDB, $user, $audits, $usage) {
         /** @var Utopia\Swoole\Request $request */
         /** @var Appwrite\Utopia\Response $response */
-        /** @var Appwrite\Database\Document $user */
         /** @var Appwrite\Database\Database $projectDB */
+        /** @var Appwrite\Database\Document $user */
         /** @var Appwrite\Event\Event $audits */
         /** @var Appwrite\Event\Event $usage */
 
         $file = $request->getFiles('file');
-        $read = (empty($read)) ? ['user:'.$user->getId()] : $read;
-        $write = (empty($write)) ? ['user:'.$user->getId()] : $write;
 
         /*
-            * Validators
-            */
+         * Validators
+         */
         //$fileType = new FileType(array(FileType::FILE_TYPE_PNG, FileType::FILE_TYPE_GIF, FileType::FILE_TYPE_JPEG));
         $fileSize = new FileSize(App::getEnv('_APP_STORAGE_LIMIT', 0));
         $upload = new Upload();
@@ -91,7 +98,8 @@ App::post('/v1/storage/files')
         $mimeType = $device->getFileMimeType($path); // Get mime-type before compression and encryption
 
         if (App::getEnv('_APP_STORAGE_ANTIVIRUS') === 'enabled') { // Check if scans are enabled
-            $antiVirus = new Network('clamav', 3310);
+            $antiVirus = new Network(App::getEnv('_APP_STORAGE_ANTIVIRUS_HOST', 'clamav'),
+                (int) App::getEnv('_APP_STORAGE_ANTIVIRUS_PORT', 3310));
 
             if (!$antiVirus->fileScan($path)) {
                 $device->delete($path);
@@ -107,7 +115,7 @@ App::post('/v1/storage/files')
         $iv = OpenSSL::randomPseudoBytes(OpenSSL::cipherIVLength(OpenSSL::CIPHER_AES_128_GCM));
         $data = OpenSSL::encrypt($data, OpenSSL::CIPHER_AES_128_GCM, $key, 0, $iv, $tag);
 
-        if (!$device->write($path, $data)) {
+        if (!$device->write($path, $data, $mimeType)) {
             throw new Exception('Failed to save file', 500);
         }
 
@@ -116,8 +124,8 @@ App::post('/v1/storage/files')
         $file = $projectDB->createDocument([
             '$collection' => Database::SYSTEM_COLLECTION_FILES,
             '$permissions' => [
-                'read' => $read,
-                'write' => $write,
+                'read' => (is_null($read) && !$user->isEmpty()) ? ['user:'.$user->getId()] : $read ?? [], // By default set read permissions for user
+                'write' => (is_null($write) && !$user->isEmpty()) ? ['user:'.$user->getId()] : $write ?? [], // By default set write permissions for user
             ],
             'dateCreated' => \time(),
             'folderId' => '',
@@ -153,20 +161,25 @@ App::post('/v1/storage/files')
             ->setStatusCode(Response::STATUS_CODE_CREATED)
             ->dynamic($file, Response::MODEL_FILE)
         ;
-    }, ['request', 'response', 'user', 'projectDB', 'audits', 'usage']);
+    });
 
 App::get('/v1/storage/files')
     ->desc('List Files')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.read')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'listFiles')
     ->label('sdk.description', '/docs/references/storage/list-files.md')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', Response::CONTENT_TYPE_JSON)
+    ->label('sdk.response.model', Response::MODEL_FILE_LIST)
     ->param('search', '', new Text(256), 'Search term to filter your list results. Max length: 256 chars.', true)
     ->param('limit', 25, new Range(0, 100), 'Results limit value. By default will return maximum 25 results. Maximum of 100 results allowed per request.', true)
     ->param('offset', 0, new Range(0, 2000), 'Results offset. The default value is 0. Use this param to manage pagination.', true)
     ->param('orderType', 'ASC', new WhiteList(['ASC', 'DESC'], true), 'Order result by ASC or DESC order.', true)
+    ->inject('response')
+    ->inject('projectDB')
     ->action(function ($search, $limit, $offset, $orderType, $response, $projectDB) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
@@ -174,9 +187,7 @@ App::get('/v1/storage/files')
         $results = $projectDB->getCollection([
             'limit' => $limit,
             'offset' => $offset,
-            'orderField' => 'dateCreated',
             'orderType' => $orderType,
-            'orderCast' => 'int',
             'search' => $search,
             'filters' => [
                 '$collection='.Database::SYSTEM_COLLECTION_FILES,
@@ -187,17 +198,22 @@ App::get('/v1/storage/files')
             'sum' => $projectDB->getSum(),
             'files' => $results
         ]), Response::MODEL_FILE_LIST);
-    }, ['response', 'projectDB']);
+    });
 
 App::get('/v1/storage/files/:fileId')
     ->desc('Get File')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.read')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'getFile')
     ->label('sdk.description', '/docs/references/storage/get-file.md')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', Response::CONTENT_TYPE_JSON)
+    ->label('sdk.response.model', Response::MODEL_FILE)
     ->param('fileId', '', new UID(), 'File unique ID.')
+    ->inject('response')
+    ->inject('projectDB')
     ->action(function ($fileId, $response, $projectDB) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
@@ -209,25 +225,35 @@ App::get('/v1/storage/files/:fileId')
         }
 
         $response->dynamic($file, Response::MODEL_FILE);
-    }, ['response', 'projectDB']);
+    });
 
 App::get('/v1/storage/files/:fileId/preview')
     ->desc('Get File Preview')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.read')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'getFilePreview')
     ->label('sdk.description', '/docs/references/storage/get-file-preview.md')
-    ->label('sdk.response.type', 'image/*')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', Response::CONTENT_TYPE_IMAGE)
     ->label('sdk.methodType', 'location')
     ->param('fileId', '', new UID(), 'File unique ID')
     ->param('width', 0, new Range(0, 4000), 'Resize preview image width, Pass an integer between 0 to 4000.', true)
     ->param('height', 0, new Range(0, 4000), 'Resize preview image height, Pass an integer between 0 to 4000.', true)
     ->param('quality', 100, new Range(0, 100), 'Preview image quality. Pass an integer between 0 to 100. Defaults to 100.', true)
+    ->param('borderWidth', 0, new Range(0, 100), 'Preview image border in pixels. Pass an integer between 0 to 100. Defaults to 0.', true)
+    ->param('borderColor', '', new HexColor(), 'Preview image border color. Use a valid HEX color, no # is needed for prefix.', true)
+    ->param('borderRadius', 0, new Range(0, 4000), 'Preview image border radius in pixels. Pass an integer between 0 to 4000.', true)
+    ->param('opacity', 1, new Range(0,1), 'Preview image opacity. Only works with images having an alpha channel (like png). Pass a number between 0 to 1.', true)
+    ->param('rotation', 0, new Range(0,360), 'Preview image rotation in degrees. Pass an integer between 0 and 360.', true)
     ->param('background', '', new HexColor(), 'Preview image background color. Only works with transparent images (png). Use a valid HEX color, no # is needed for prefix.', true)
     ->param('output', '', new WhiteList(\array_keys(Config::getParam('storage-outputs')), true), 'Output format type (jpeg, jpg, png, gif and webp).', true)
-    ->action(function ($fileId, $width, $height, $quality, $background, $output, $request, $response, $project, $projectDB) {
+    ->inject('request')
+    ->inject('response')
+    ->inject('project')
+    ->inject('projectDB')
+    ->action(function ($fileId, $width, $height, $quality, $borderWidth, $borderColor, $borderRadius, $opacity, $rotation, $background, $output, $request, $response, $project, $projectDB) {
         /** @var Utopia\Swoole\Request $request */
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Document $project */
@@ -252,7 +278,7 @@ App::get('/v1/storage/files/:fileId/preview')
         $fileLogos = Config::getParam('storage-logos');
 
         $date = \date('D, d M Y H:i:s', \time() + (60 * 60 * 24 * 45)).' GMT';  // 45 days cache
-        $key = \md5($fileId.$width.$height.$quality.$background.$storage.$output);
+        $key = \md5($fileId.$width.$height.$quality.$borderWidth.$borderColor.$borderRadius.$opacity.$rotation.$background.$storage.$output);
 
         $file = $projectDB->getDocument($fileId);
 
@@ -272,7 +298,7 @@ App::get('/v1/storage/files/:fileId/preview')
             $cipher = null;
             $background = (empty($background)) ? 'eceff1' : $background;
             $type = \strtolower(\pathinfo($path, PATHINFO_EXTENSION));
-            $key = \md5($path.$width.$height.$quality.$background.$storage.$output);
+            $key = \md5($path.$width.$height.$quality.$borderWidth.$borderColor.$borderRadius.$opacity.$rotation.$background.$storage.$output);
         }
 
         $compressor = new GZIP();
@@ -313,17 +339,34 @@ App::get('/v1/storage/files/:fileId/preview')
             $source = $compressor->decompress($source);
         }
 
-        $resize = new Resize($source);
+        $image = new Image($source);
 
-        $resize->crop((int) $width, (int) $height);
+        $image->crop((int) $width, (int) $height);
+        
+        if (!empty($opacity) || $opacity==0) {
+            $image->setOpacity($opacity);
+        }
 
         if (!empty($background)) {
-            $resize->setBackground('#'.$background);
+            $image->setBackground('#'.$background);
+        }
+
+        
+        if (!empty($borderWidth) ) {
+            $image->setBorder($borderWidth, '#'.$borderColor);
+        }
+
+        if (!empty($borderRadius)) {
+            $image->setBorderRadius($borderRadius);
+        }
+
+        if (!empty($rotation)) {
+            $image->setRotation($rotation);
         }
 
         $output = (empty($output)) ? $type : $output;
 
-        $data = $resize->output($output, $quality);
+        $data = $image->output($output, $quality);
 
         $cache->save($key, $data);
 
@@ -334,20 +377,23 @@ App::get('/v1/storage/files/:fileId/preview')
             ->send($data)
         ;
 
-        unset($resize);
-    }, ['request', 'response', 'project', 'projectDB']);
+        unset($image);
+    });
 
 App::get('/v1/storage/files/:fileId/download')
     ->desc('Get File for Download')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.read')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'getFileDownload')
     ->label('sdk.description', '/docs/references/storage/get-file-download.md')
-    ->label('sdk.response.type', '*')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', '*/*')
     ->label('sdk.methodType', 'location')
     ->param('fileId', '', new UID(), 'File unique ID.')
+    ->inject('response')
+    ->inject('projectDB')
     ->action(function ($fileId, $response, $projectDB) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
@@ -390,21 +436,23 @@ App::get('/v1/storage/files/:fileId/download')
             ->addHeader('X-Peak', \memory_get_peak_usage())
             ->send($source)
         ;
-    }, ['response', 'projectDB']);
+    });
 
 App::get('/v1/storage/files/:fileId/view')
     ->desc('Get File for View')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.read')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'getFileView')
     ->label('sdk.description', '/docs/references/storage/get-file-view.md')
-    ->label('sdk.response.type', '*')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', '*/*')
     ->label('sdk.methodType', 'location')
     ->param('fileId', '', new UID(), 'File unique ID.')
-    ->param('as', '', new WhiteList(['pdf', /*'html',*/ 'text'], true), 'Choose a file format to convert your file to. Currently you can only convert word and pdf files to pdf or txt. This option is currently experimental only, use at your own risk.', true)
-    ->action(function ($fileId, $as, $response, $projectDB) {
+    ->inject('response')
+    ->inject('projectDB')
+    ->action(function ($fileId, $response, $projectDB) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
 
@@ -446,13 +494,6 @@ App::get('/v1/storage/files/:fileId/view')
         $output = $compressor->decompress($source);
         $fileName = $file->getAttribute('name', '');
 
-        $contentTypes = [
-            'pdf' => 'application/pdf',
-            'text' => 'text/plain',
-        ];
-
-        $contentType = (\array_key_exists($as, $contentTypes)) ? $contentTypes[$as] : $contentType;
-
         // Response
         $response
             ->setContentType($contentType)
@@ -463,20 +504,26 @@ App::get('/v1/storage/files/:fileId/view')
             ->addHeader('X-Peak', \memory_get_peak_usage())
             ->send($output)
         ;
-    }, ['response', 'projectDB']);
+    });
 
 App::put('/v1/storage/files/:fileId')
     ->desc('Update File')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.write')
     ->label('event', 'storage.files.update')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'updateFile')
     ->label('sdk.description', '/docs/references/storage/update-file.md')
+    ->label('sdk.response.code', Response::STATUS_CODE_OK)
+    ->label('sdk.response.type', Response::CONTENT_TYPE_JSON)
+    ->label('sdk.response.model', Response::MODEL_FILE)
     ->param('fileId', '', new UID(), 'File unique ID.')
     ->param('read', [], new ArrayList(new Text(64)), 'An array of strings with read permissions. By default no user is granted with any read permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.')
     ->param('write', [], new ArrayList(new Text(64)), 'An array of strings with write permissions. By default no user is granted with any write permissions. [learn more about permissions](/docs/permissions) and get a full list of available permissions.')
+    ->inject('response')
+    ->inject('projectDB')
+    ->inject('audits')
     ->action(function ($fileId, $read, $write, $response, $projectDB, $audits) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
@@ -506,22 +553,29 @@ App::put('/v1/storage/files/:fileId')
         ;
 
         $response->dynamic($file, Response::MODEL_FILE);
-    }, ['response', 'projectDB', 'audits']);
+    });
 
 App::delete('/v1/storage/files/:fileId')
     ->desc('Delete File')
     ->groups(['api', 'storage'])
     ->label('scope', 'files.write')
     ->label('event', 'storage.files.delete')
-    ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+    ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
     ->label('sdk.namespace', 'storage')
     ->label('sdk.method', 'deleteFile')
     ->label('sdk.description', '/docs/references/storage/delete-file.md')
+    ->label('sdk.response.code', Response::STATUS_CODE_NOCONTENT)
+    ->label('sdk.response.model', Response::MODEL_NONE)
     ->param('fileId', '', new UID(), 'File unique ID.')
-    ->action(function ($fileId, $response, $projectDB, $webhooks, $audits, $usage) {
+    ->inject('response')
+    ->inject('projectDB')
+    ->inject('events')
+    ->inject('audits')
+    ->inject('usage')
+    ->action(function ($fileId, $response, $projectDB, $events, $audits, $usage) {
         /** @var Appwrite\Utopia\Response $response */
         /** @var Appwrite\Database\Database $projectDB */
-        /** @var Appwrite\Event\Event $webhooks */
+        /** @var Appwrite\Event\Event $events */
         /** @var Appwrite\Event\Event $audits */
         /** @var Appwrite\Event\Event $usage */
         
@@ -548,18 +602,18 @@ App::delete('/v1/storage/files/:fileId')
             ->setParam('storage', $file->getAttribute('size', 0) * -1)
         ;
 
-        $webhooks
-            ->setParam('payload', $response->output($file, Response::MODEL_FILE))
+        $events
+            ->setParam('eventData', $response->output($file, Response::MODEL_FILE))
         ;
 
         $response->noContent();
-    }, ['response', 'projectDB', 'webhooks', 'audits', 'usage']);
+    });
 
 // App::get('/v1/storage/files/:fileId/scan')
 //     ->desc('Scan Storage')
 //     ->groups(['api', 'storage'])
 //     ->label('scope', 'god')
-//     ->label('sdk.platform', [APP_PLATFORM_CLIENT, APP_PLATFORM_SERVER])
+//     ->label('sdk.auth', [APP_AUTH_TYPE_SESSION, APP_AUTH_TYPE_KEY, APP_AUTH_TYPE_JWT])
 //     ->label('sdk.namespace', 'storage')
 //     ->label('sdk.method', 'getFileScan')
 //     ->label('sdk.hide', true)

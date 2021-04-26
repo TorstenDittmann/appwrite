@@ -139,9 +139,9 @@
                 globalParams.push({key: key, value: value});
             };
 
-            addGlobalHeader('x-sdk-version', 'appwrite:javascript:1.0.0');
+            addGlobalHeader('x-sdk-version', 'appwrite:web:1.0.0');
             addGlobalHeader('content-type', '');
-
+    
             /**
              * @param {string} method
              * @param {string} path string
@@ -311,10 +311,10 @@
              *
              * Use this endpoint to allow a new user to register a new account in your
              * project. After the user registration completes successfully, you can use
-             * the [/account/verfication](/docs/client/account#createVerification) route
-             * to start verifying the user email address. To allow your new user to login
-             * to his new account, you need to create a new [account
-             * session](/docs/client/account#createSession).
+             * the [/account/verfication](/docs/client/account#accountCreateVerification)
+             * route to start verifying the user email address. To allow the new user to
+             * login to their new account, you need to create a new [account
+             * session](/docs/client/account#accountCreateSession).
              *
              * @param {string} email
              * @param {string} password
@@ -335,15 +335,15 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
@@ -402,11 +402,11 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
@@ -454,7 +454,7 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
@@ -488,11 +488,11 @@
 
                 let payload = {};
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
-                if(oldPassword) {
+                if(typeof oldPassword !== 'undefined') {
                     payload['oldPassword'] = oldPassword;
                 }
 
@@ -540,7 +540,7 @@
 
                 let payload = {};
 
-                if(prefs) {
+                if(typeof prefs !== 'undefined') {
                     payload['prefs'] = prefs;
                 }
 
@@ -557,8 +557,9 @@
              * When the user clicks the confirmation link he is redirected back to your
              * app password reset URL with the secret key and email address values
              * attached to the URL query string. Use the query string params to submit a
-             * request to the [PUT /account/recovery](/docs/client/account#updateRecovery)
-             * endpoint to complete the process.
+             * request to the [PUT
+             * /account/recovery](/docs/client/account#accountUpdateRecovery) endpoint to
+             * complete the process.
              *
              * @param {string} email
              * @param {string} url
@@ -578,11 +579,11 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
@@ -598,7 +599,7 @@
              * Use this endpoint to complete the user account password reset. Both the
              * **userId** and **secret** arguments will be passed as query parameters to
              * the redirect URL you have provided when sending your request to the [POST
-             * /account/recovery](/docs/client/account#createRecovery) endpoint.
+             * /account/recovery](/docs/client/account#accountCreateRecovery) endpoint.
              * 
              * Please note that in order to avoid a [Redirect
              * Attack](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.md)
@@ -633,19 +634,19 @@
 
                 let payload = {};
 
-                if(userId) {
+                if(typeof userId !== 'undefined') {
                     payload['userId'] = userId;
                 }
 
-                if(secret) {
+                if(typeof secret !== 'undefined') {
                     payload['secret'] = secret;
                 }
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
-                if(passwordAgain) {
+                if(typeof passwordAgain !== 'undefined') {
                     payload['passwordAgain'] = passwordAgain;
                 }
 
@@ -678,7 +679,7 @@
             /**
              * Create Account Session
              *
-             * Allow the user to login into his account by providing a valid email and
+             * Allow the user to login into their account by providing a valid email and
              * password combination. This route will create a new session for the user.
              *
              * @param {string} email
@@ -699,11 +700,11 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
@@ -736,7 +737,7 @@
             /**
              * Create Account Session with OAuth2
              *
-             * Allow the user to login to his account using the OAuth2 provider of his
+             * Allow the user to login to their account using the OAuth2 provider of their
              * choice. Each OAuth2 provider should be enabled from the Appwrite console
              * first. Use the success and failure arguments to provide a redirect URL's
              * back to your app when login is completed.
@@ -796,9 +797,9 @@
             /**
              * Delete Account Session
              *
-             * Use this endpoint to log out the currently logged in user from all his
-             * account sessions across all his different devices. When using the option id
-             * argument, only the session unique ID provider will be deleted.
+             * Use this endpoint to log out the currently logged in user from all their
+             * account sessions across all of their different devices. When using the
+             * option id argument, only the session unique ID provider will be deleted.
              *
              * @param {string} sessionId
              * @throws {Error}
@@ -829,7 +830,7 @@
              * should redirect the user back to your app and allow you to complete the
              * verification process by verifying both the **userId** and **secret**
              * parameters. Learn more about how to [complete the verification
-             * process](/docs/client/account#updateAccountVerification). 
+             * process](/docs/client/account#accountUpdateVerification). 
              * 
              * Please note that in order to avoid a [Redirect
              * Attack](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.md),
@@ -850,7 +851,7 @@
 
                 let payload = {};
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
@@ -886,11 +887,11 @@
 
                 let payload = {};
 
-                if(userId) {
+                if(typeof userId !== 'undefined') {
                     payload['userId'] = userId;
                 }
 
-                if(secret) {
+                if(typeof secret !== 'undefined') {
                     payload['secret'] = secret;
                 }
 
@@ -966,10 +967,9 @@
             /**
              * Get Credit Card Icon
              *
-             * Need to display your users with your billing method or their payment
-             * methods? The credit card endpoint will return you the icon of the credit
-             * card provider you need. Use width, height and quality arguments to change
-             * the output settings.
+             * The credit card endpoint will return you the icon of the credit card
+             * provider you need. Use width, height and quality arguments to change the
+             * output settings.
              *
              * @param {string} code
              * @param {number} width
@@ -1026,8 +1026,9 @@
             /**
              * Get Favicon
              *
-             * Use this endpoint to fetch the favorite icon (AKA favicon) of a  any remote
+             * Use this endpoint to fetch the favorite icon (AKA favicon) of any remote
              * website URL.
+             * 
              *
              * @param {string} url
              * @throws {Error}
@@ -1329,7 +1330,7 @@
              *
              * Get a list of all the user collections. You can use the query params to
              * filter your results. On admin mode, this endpoint will return a list of all
-             * of the project collections. [Learn more about different API
+             * of the project's collections. [Learn more about different API
              * modes](/docs/admin).
              *
              * @param {string} search
@@ -1399,19 +1400,19 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
-                if(rules) {
+                if(typeof rules !== 'undefined') {
                     payload['rules'] = rules;
                 }
 
@@ -1424,7 +1425,7 @@
             /**
              * Get Collection
              *
-             * Get collection by its unique ID. This endpoint response returns a JSON
+             * Get a collection by its unique ID. This endpoint response returns a JSON
              * object with the collection metadata.
              *
              * @param {string} collectionId
@@ -1449,7 +1450,7 @@
             /**
              * Update Collection
              *
-             * Update collection by its unique ID.
+             * Update a collection by its unique ID.
              *
              * @param {string} collectionId
              * @param {string} name
@@ -1480,19 +1481,19 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
-                if(rules) {
+                if(typeof rules !== 'undefined') {
                     payload['rules'] = rules;
                 }
 
@@ -1532,7 +1533,7 @@
              *
              * Get a list of all the user documents. You can use the query params to
              * filter your results. On admin mode, this endpoint will return a list of all
-             * of the project documents. [Learn more about different API
+             * of the project's documents. [Learn more about different API
              * modes](/docs/admin).
              *
              * @param {string} collectionId
@@ -1546,7 +1547,7 @@
              * @throws {Error}
              * @return {Promise}             
              */
-            listDocuments: function(collectionId, filters = [], limit = 25, offset = 0, orderField = '$id', orderType = 'ASC', orderCast = 'string', search = '') {
+            listDocuments: function(collectionId, filters = [], limit = 25, offset = 0, orderField = '', orderType = 'ASC', orderCast = 'string', search = '') {
                 if(collectionId === undefined) {
                     throw new Error('Missing required parameter: "collectionId"');
                 }
@@ -1594,7 +1595,7 @@
              *
              * Create a new Document. Before using this route, you should create a new
              * collection resource using either a [server
-             * integration](/docs/server/database?sdk=nodejs#createCollection) API or
+             * integration](/docs/server/database#databaseCreateCollection) API or
              * directly from your database console.
              *
              * @param {string} collectionId
@@ -1628,27 +1629,27 @@
 
                 let payload = {};
 
-                if(data) {
+                if(typeof data !== 'undefined') {
                     payload['data'] = data;
                 }
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
-                if(parentDocument) {
+                if(typeof parentDocument !== 'undefined') {
                     payload['parentDocument'] = parentDocument;
                 }
 
-                if(parentProperty) {
+                if(typeof parentProperty !== 'undefined') {
                     payload['parentProperty'] = parentProperty;
                 }
 
-                if(parentPropertyType) {
+                if(typeof parentPropertyType !== 'undefined') {
                     payload['parentPropertyType'] = parentPropertyType;
                 }
 
@@ -1661,8 +1662,8 @@
             /**
              * Get Document
              *
-             * Get document by its unique ID. This endpoint response returns a JSON object
-             * with the document data.
+             * Get a document by its unique ID. This endpoint response returns a JSON
+             * object with the document data.
              *
              * @param {string} collectionId
              * @param {string} documentId
@@ -1691,6 +1692,8 @@
             /**
              * Update Document
              *
+             * Update a document by its unique ID. Using the patch method you can pass
+             * only specific fields that will get updated.
              *
              * @param {string} collectionId
              * @param {string} documentId
@@ -1725,15 +1728,15 @@
 
                 let payload = {};
 
-                if(data) {
+                if(typeof data !== 'undefined') {
                     payload['data'] = data;
                 }
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
@@ -1746,8 +1749,8 @@
             /**
              * Delete Document
              *
-             * Delete document by its unique ID. This endpoint deletes only the parent
-             * documents, his attributes and relations to other documents. Child documents
+             * Delete a document by its unique ID. This endpoint deletes only the parent
+             * documents, its attributes and relations to other documents. Child documents
              * **will not** be deleted.
              *
              * @param {string} collectionId
@@ -1780,6 +1783,8 @@
             /**
              * List Functions
              *
+             * Get a list of all the project's functions. You can use the query params to
+             * filter your results.
              *
              * @param {string} search
              * @param {number} limit
@@ -1818,8 +1823,12 @@
             /**
              * Create Function
              *
+             * Create a new function. You can pass a list of
+             * [permissions](/docs/permissions) to allow different project users or team
+             * with access to execute the function using the client API.
              *
              * @param {string} name
+             * @param {string[]} execute
              * @param {string} env
              * @param {object} vars
              * @param {string[]} events
@@ -1828,9 +1837,13 @@
              * @throws {Error}
              * @return {Promise}             
              */
-            create: function(name, env, vars = [], events = [], schedule = '', timeout = 15) {
+            create: function(name, execute, env, vars = {}, events = [], schedule = '', timeout = 15) {
                 if(name === undefined) {
                     throw new Error('Missing required parameter: "name"');
+                }
+                
+                if(execute === undefined) {
+                    throw new Error('Missing required parameter: "execute"');
                 }
                 
                 if(env === undefined) {
@@ -1841,27 +1854,31 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(env) {
+                if(typeof execute !== 'undefined') {
+                    payload['execute'] = execute;
+                }
+
+                if(typeof env !== 'undefined') {
                     payload['env'] = env;
                 }
 
-                if(vars) {
+                if(typeof vars !== 'undefined') {
                     payload['vars'] = vars;
                 }
 
-                if(events) {
+                if(typeof events !== 'undefined') {
                     payload['events'] = events;
                 }
 
-                if(schedule) {
+                if(typeof schedule !== 'undefined') {
                     payload['schedule'] = schedule;
                 }
 
-                if(timeout) {
+                if(typeof timeout !== 'undefined') {
                     payload['timeout'] = timeout;
                 }
 
@@ -1874,6 +1891,7 @@
             /**
              * Get Function
              *
+             * Get a function by its unique ID.
              *
              * @param {string} functionId
              * @throws {Error}
@@ -1897,9 +1915,11 @@
             /**
              * Update Function
              *
+             * Update function by its unique ID.
              *
              * @param {string} functionId
              * @param {string} name
+             * @param {string[]} execute
              * @param {object} vars
              * @param {string[]} events
              * @param {string} schedule
@@ -1907,7 +1927,7 @@
              * @throws {Error}
              * @return {Promise}             
              */
-            update: function(functionId, name, vars = [], events = [], schedule = '', timeout = 15) {
+            update: function(functionId, name, execute, vars = {}, events = [], schedule = '', timeout = 15) {
                 if(functionId === undefined) {
                     throw new Error('Missing required parameter: "functionId"');
                 }
@@ -1916,27 +1936,35 @@
                     throw new Error('Missing required parameter: "name"');
                 }
                 
+                if(execute === undefined) {
+                    throw new Error('Missing required parameter: "execute"');
+                }
+                
                 let path = '/functions/{functionId}'.replace(new RegExp('{functionId}', 'g'), functionId);
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(vars) {
+                if(typeof execute !== 'undefined') {
+                    payload['execute'] = execute;
+                }
+
+                if(typeof vars !== 'undefined') {
                     payload['vars'] = vars;
                 }
 
-                if(events) {
+                if(typeof events !== 'undefined') {
                     payload['events'] = events;
                 }
 
-                if(schedule) {
+                if(typeof schedule !== 'undefined') {
                     payload['schedule'] = schedule;
                 }
 
-                if(timeout) {
+                if(typeof timeout !== 'undefined') {
                     payload['timeout'] = timeout;
                 }
 
@@ -1949,6 +1977,7 @@
             /**
              * Delete Function
              *
+             * Delete a function by its unique ID.
              *
              * @param {string} functionId
              * @throws {Error}
@@ -1972,6 +2001,10 @@
             /**
              * List Executions
              *
+             * Get a list of all the current user function execution logs. You can use the
+             * query params to filter your results. On admin mode, this endpoint will
+             * return a list of all of the project's executions. [Learn more about
+             * different API modes](/docs/admin).
              *
              * @param {string} functionId
              * @param {string} search
@@ -2015,13 +2048,17 @@
             /**
              * Create Execution
              *
+             * Trigger a function execution. The returned object will return you the
+             * current execution status. You can ping the `Get Execution` endpoint to get
+             * updates on the current execution status. Once this endpoint is called, your
+             * function execution process will start asynchronously.
              *
              * @param {string} functionId
-             * @param {number} async
+             * @param {string} data 
              * @throws {Error}
              * @return {Promise}             
              */
-            createExecution: function(functionId, async = 1) {
+            createExecution: function(functionId, data) {
                 if(functionId === undefined) {
                     throw new Error('Missing required parameter: "functionId"');
                 }
@@ -2030,8 +2067,8 @@
 
                 let payload = {};
 
-                if(async) {
-                    payload['async'] = async;
+                if (data) {
+                    payload['data'] = data;   
                 }
 
                 return http
@@ -2043,6 +2080,7 @@
             /**
              * Get Execution
              *
+             * Get a function execution log by its unique ID.
              *
              * @param {string} functionId
              * @param {string} executionId
@@ -2071,6 +2109,9 @@
             /**
              * Update Function Tag
              *
+             * Update the function code tag ID using the unique function ID. Use this
+             * endpoint to switch the code tag that should be executed by the execution
+             * endpoint.
              *
              * @param {string} functionId
              * @param {string} tag
@@ -2090,7 +2131,7 @@
 
                 let payload = {};
 
-                if(tag) {
+                if(typeof tag !== 'undefined') {
                     payload['tag'] = tag;
                 }
 
@@ -2103,6 +2144,8 @@
             /**
              * List Tags
              *
+             * Get a list of all the project's code tags. You can use the query params to
+             * filter your results.
              *
              * @param {string} functionId
              * @param {string} search
@@ -2146,6 +2189,16 @@
             /**
              * Create Tag
              *
+             * Create a new function code tag. Use this endpoint to upload a new version
+             * of your code function. To execute your newly uploaded code, you'll need to
+             * update the function's tag to use your new tag UID.
+             * 
+             * This endpoint accepts a tar.gz file compressed with your code. Make sure to
+             * include any dependencies your code has within the compressed file. You can
+             * learn more about code packaging in the [Appwrite Cloud Functions
+             * tutorial](/docs/functions).
+             * 
+             * Use the "command" param to set the entry point used to execute your code.
              *
              * @param {string} functionId
              * @param {string} command
@@ -2170,11 +2223,11 @@
 
                 let payload = {};
 
-                if(command) {
+                if(typeof command !== 'undefined') {
                     payload['command'] = command;
                 }
 
-                if(code) {
+                if(typeof code !== 'undefined') {
                     payload['code'] = code;
                 }
 
@@ -2187,6 +2240,7 @@
             /**
              * Get Tag
              *
+             * Get a code tag by its unique ID.
              *
              * @param {string} functionId
              * @param {string} tagId
@@ -2215,6 +2269,7 @@
             /**
              * Delete Tag
              *
+             * Delete a code tag by its unique ID.
              *
              * @param {string} functionId
              * @param {string} tagId
@@ -2236,6 +2291,34 @@
 
                 return http
                     .delete(path, {
+                        'content-type': 'application/json',
+                    }, payload);
+            },
+
+            /**
+             * Get Function Usage
+             *
+             *
+             * @param {string} functionId
+             * @param {string} range
+             * @throws {Error}
+             * @return {Promise}             
+             */
+            getUsage: function(functionId, range = '30d') {
+                if(functionId === undefined) {
+                    throw new Error('Missing required parameter: "functionId"');
+                }
+                
+                let path = '/functions/{functionId}/usage'.replace(new RegExp('{functionId}', 'g'), functionId);
+
+                let payload = {};
+
+                if(range) {
+                    payload['range'] = range;
+                }
+
+                return http
+                    .get(path, {
                         'content-type': 'application/json',
                     }, payload);
             }
@@ -2703,47 +2786,47 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(teamId) {
+                if(typeof teamId !== 'undefined') {
                     payload['teamId'] = teamId;
                 }
 
-                if(description) {
+                if(typeof description !== 'undefined') {
                     payload['description'] = description;
                 }
 
-                if(logo) {
+                if(typeof logo !== 'undefined') {
                     payload['logo'] = logo;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
-                if(legalName) {
+                if(typeof legalName !== 'undefined') {
                     payload['legalName'] = legalName;
                 }
 
-                if(legalCountry) {
+                if(typeof legalCountry !== 'undefined') {
                     payload['legalCountry'] = legalCountry;
                 }
 
-                if(legalState) {
+                if(typeof legalState !== 'undefined') {
                     payload['legalState'] = legalState;
                 }
 
-                if(legalCity) {
+                if(typeof legalCity !== 'undefined') {
                     payload['legalCity'] = legalCity;
                 }
 
-                if(legalAddress) {
+                if(typeof legalAddress !== 'undefined') {
                     payload['legalAddress'] = legalAddress;
                 }
 
-                if(legalTaxId) {
+                if(typeof legalTaxId !== 'undefined') {
                     payload['legalTaxId'] = legalTaxId;
                 }
 
@@ -2807,43 +2890,43 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(description) {
+                if(typeof description !== 'undefined') {
                     payload['description'] = description;
                 }
 
-                if(logo) {
+                if(typeof logo !== 'undefined') {
                     payload['logo'] = logo;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
-                if(legalName) {
+                if(typeof legalName !== 'undefined') {
                     payload['legalName'] = legalName;
                 }
 
-                if(legalCountry) {
+                if(typeof legalCountry !== 'undefined') {
                     payload['legalCountry'] = legalCountry;
                 }
 
-                if(legalState) {
+                if(typeof legalState !== 'undefined') {
                     payload['legalState'] = legalState;
                 }
 
-                if(legalCity) {
+                if(typeof legalCity !== 'undefined') {
                     payload['legalCity'] = legalCity;
                 }
 
-                if(legalAddress) {
+                if(typeof legalAddress !== 'undefined') {
                     payload['legalAddress'] = legalAddress;
                 }
 
-                if(legalTaxId) {
+                if(typeof legalTaxId !== 'undefined') {
                     payload['legalTaxId'] = legalTaxId;
                 }
 
@@ -2875,12 +2958,81 @@
 
                 let payload = {};
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
                 return http
                     .delete(path, {
+                        'content-type': 'application/json',
+                    }, payload);
+            },
+
+            /**
+             * Update Project users limit
+             *
+             *
+             * @param {string} projectId
+             * @param {string} limit
+             * @throws {Error}
+             * @return {Promise}             
+             */
+            updateAuthLimit: function(projectId, limit) {
+                if(projectId === undefined) {
+                    throw new Error('Missing required parameter: "projectId"');
+                }
+                
+                if(limit === undefined) {
+                    throw new Error('Missing required parameter: "limit"');
+                }
+                
+                let path = '/projects/{projectId}/auth/limit'.replace(new RegExp('{projectId}', 'g'), projectId);
+
+                let payload = {};
+
+                if(typeof limit !== 'undefined') {
+                    payload['limit'] = limit;
+                }
+
+                return http
+                    .patch(path, {
+                        'content-type': 'application/json',
+                    }, payload);
+            },
+
+            /**
+             * Update Project auth method status. Use this endpoint to enable or disable a given auth method for this project.
+             *
+             *
+             * @param {string} projectId
+             * @param {string} method
+             * @param {boolean} status
+             * @throws {Error}
+             * @return {Promise}             
+             */
+            updateAuthStatus: function(projectId, method, status) {
+                if(projectId === undefined) {
+                    throw new Error('Missing required parameter: "projectId"');
+                }
+                
+                if(method === undefined) {
+                    throw new Error('Missing required parameter: "method"');
+                }
+                
+                if(status === undefined) {
+                    throw new Error('Missing required parameter: "status"');
+                }
+                
+                let path = '/projects/{projectId}/auth/{method}'.replace(new RegExp('{projectId}', 'g'), projectId).replace(new RegExp('{method}', 'g'), method);
+
+                let payload = {};
+
+                if(typeof status !== 'undefined') {
+                    payload['status'] = status;
+                }
+
+                return http
+                    .patch(path, {
                         'content-type': 'application/json',
                     }, payload);
             },
@@ -2930,7 +3082,7 @@
 
                 let payload = {};
 
-                if(domain) {
+                if(typeof domain !== 'undefined') {
                     payload['domain'] = domain;
                 }
 
@@ -3074,11 +3226,11 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(scopes) {
+                if(typeof scopes !== 'undefined') {
                     payload['scopes'] = scopes;
                 }
 
@@ -3148,11 +3300,11 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(scopes) {
+                if(typeof scopes !== 'undefined') {
                     payload['scopes'] = scopes;
                 }
 
@@ -3214,15 +3366,15 @@
 
                 let payload = {};
 
-                if(provider) {
+                if(typeof provider !== 'undefined') {
                     payload['provider'] = provider;
                 }
 
-                if(appId) {
+                if(typeof appId !== 'undefined') {
                     payload['appId'] = appId;
                 }
 
-                if(secret) {
+                if(typeof secret !== 'undefined') {
                     payload['secret'] = secret;
                 }
 
@@ -3285,23 +3437,23 @@
 
                 let payload = {};
 
-                if(type) {
+                if(typeof type !== 'undefined') {
                     payload['type'] = type;
                 }
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(key) {
+                if(typeof key !== 'undefined') {
                     payload['key'] = key;
                 }
 
-                if(store) {
+                if(typeof store !== 'undefined') {
                     payload['store'] = store;
                 }
 
-                if(hostname) {
+                if(typeof hostname !== 'undefined') {
                     payload['hostname'] = hostname;
                 }
 
@@ -3369,19 +3521,19 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(key) {
+                if(typeof key !== 'undefined') {
                     payload['key'] = key;
                 }
 
-                if(store) {
+                if(typeof store !== 'undefined') {
                     payload['store'] = store;
                 }
 
-                if(hostname) {
+                if(typeof hostname !== 'undefined') {
                     payload['hostname'] = hostname;
                 }
 
@@ -3492,39 +3644,39 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(status) {
+                if(typeof status !== 'undefined') {
                     payload['status'] = status;
                 }
 
-                if(schedule) {
+                if(typeof schedule !== 'undefined') {
                     payload['schedule'] = schedule;
                 }
 
-                if(security) {
+                if(typeof security !== 'undefined') {
                     payload['security'] = security;
                 }
 
-                if(httpMethod) {
+                if(typeof httpMethod !== 'undefined') {
                     payload['httpMethod'] = httpMethod;
                 }
 
-                if(httpUrl) {
+                if(typeof httpUrl !== 'undefined') {
                     payload['httpUrl'] = httpUrl;
                 }
 
-                if(httpHeaders) {
+                if(typeof httpHeaders !== 'undefined') {
                     payload['httpHeaders'] = httpHeaders;
                 }
 
-                if(httpUser) {
+                if(typeof httpUser !== 'undefined') {
                     payload['httpUser'] = httpUser;
                 }
 
-                if(httpPass) {
+                if(typeof httpPass !== 'undefined') {
                     payload['httpPass'] = httpPass;
                 }
 
@@ -3617,39 +3769,39 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(status) {
+                if(typeof status !== 'undefined') {
                     payload['status'] = status;
                 }
 
-                if(schedule) {
+                if(typeof schedule !== 'undefined') {
                     payload['schedule'] = schedule;
                 }
 
-                if(security) {
+                if(typeof security !== 'undefined') {
                     payload['security'] = security;
                 }
 
-                if(httpMethod) {
+                if(typeof httpMethod !== 'undefined') {
                     payload['httpMethod'] = httpMethod;
                 }
 
-                if(httpUrl) {
+                if(typeof httpUrl !== 'undefined') {
                     payload['httpUrl'] = httpUrl;
                 }
 
-                if(httpHeaders) {
+                if(typeof httpHeaders !== 'undefined') {
                     payload['httpHeaders'] = httpHeaders;
                 }
 
-                if(httpUser) {
+                if(typeof httpUser !== 'undefined') {
                     payload['httpUser'] = httpUser;
                 }
 
-                if(httpPass) {
+                if(typeof httpPass !== 'undefined') {
                     payload['httpPass'] = httpPass;
                 }
 
@@ -3696,7 +3848,7 @@
              * @throws {Error}
              * @return {Promise}             
              */
-            getUsage: function(projectId, range = 'last30') {
+            getUsage: function(projectId, range = '30d') {
                 if(projectId === undefined) {
                     throw new Error('Missing required parameter: "projectId"');
                 }
@@ -3777,27 +3929,27 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(events) {
+                if(typeof events !== 'undefined') {
                     payload['events'] = events;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
-                if(security) {
+                if(typeof security !== 'undefined') {
                     payload['security'] = security;
                 }
 
-                if(httpUser) {
+                if(typeof httpUser !== 'undefined') {
                     payload['httpUser'] = httpUser;
                 }
 
-                if(httpPass) {
+                if(typeof httpPass !== 'undefined') {
                     payload['httpPass'] = httpPass;
                 }
 
@@ -3879,27 +4031,27 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(events) {
+                if(typeof events !== 'undefined') {
                     payload['events'] = events;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
-                if(security) {
+                if(typeof security !== 'undefined') {
                     payload['security'] = security;
                 }
 
-                if(httpUser) {
+                if(typeof httpUser !== 'undefined') {
                     payload['httpUser'] = httpUser;
                 }
 
-                if(httpPass) {
+                if(typeof httpPass !== 'undefined') {
                     payload['httpPass'] = httpPass;
                 }
 
@@ -3945,7 +4097,7 @@
              *
              * Get a list of all the user files. You can use the query params to filter
              * your results. On admin mode, this endpoint will return a list of all of the
-             * project files. [Learn more about different API modes](/docs/admin).
+             * project's files. [Learn more about different API modes](/docs/admin).
              *
              * @param {string} search
              * @param {number} limit
@@ -4011,15 +4163,15 @@
 
                 let payload = {};
 
-                if(file) {
+                if(typeof file !== 'undefined') {
                     payload['file'] = file;
                 }
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
@@ -4032,7 +4184,7 @@
             /**
              * Get File
              *
-             * Get file by its unique ID. This endpoint response returns a JSON object
+             * Get a file by its unique ID. This endpoint response returns a JSON object
              * with the file metadata.
              *
              * @param {string} fileId
@@ -4057,8 +4209,8 @@
             /**
              * Update File
              *
-             * Update file by its unique ID. Only users with write permissions have access
-             * to update this resource.
+             * Update a file by its unique ID. Only users with write permissions have
+             * access to update this resource.
              *
              * @param {string} fileId
              * @param {string[]} read
@@ -4083,11 +4235,11 @@
 
                 let payload = {};
 
-                if(read) {
+                if(typeof read !== 'undefined') {
                     payload['read'] = read;
                 }
 
-                if(write) {
+                if(typeof write !== 'undefined') {
                     payload['write'] = write;
                 }
 
@@ -4125,7 +4277,7 @@
             /**
              * Get File for Download
              *
-             * Get file content by its unique ID. The endpoint response return with a
+             * Get a file content by its unique ID. The endpoint response return with a
              * 'Content-Disposition: attachment' header that tells the browser to start
              * downloading the file to user downloads directory.
              *
@@ -4239,15 +4391,15 @@
             /**
              * Get File for View
              *
-             * Get file content by its unique ID. This endpoint is similar to the download
-             * method but returns with no  'Content-Disposition: attachment' header.
+             * Get a file content by its unique ID. This endpoint is similar to the
+             * download method but returns with no  'Content-Disposition: attachment'
+             * header.
              *
              * @param {string} fileId
-             * @param {string} as
              * @throws {Error}
              * @return {string}             
              */
-            getFileView: function(fileId, as = '') {
+            getFileView: function(fileId) {
                 if(fileId === undefined) {
                     throw new Error('Missing required parameter: "fileId"');
                 }
@@ -4255,10 +4407,6 @@
                 let path = '/storage/files/{fileId}/view'.replace(new RegExp('{fileId}', 'g'), fileId);
 
                 let payload = {};
-
-                if(as) {
-                    payload['as'] = as;
-                }
 
                 payload['project'] = config.project;
 
@@ -4292,7 +4440,8 @@
              *
              * Get a list of all the current user teams. You can use the query params to
              * filter your results. On admin mode, this endpoint will return a list of all
-             * of the project teams. [Learn more about different API modes](/docs/admin).
+             * of the project's teams. [Learn more about different API
+             * modes](/docs/admin).
              *
              * @param {string} search
              * @param {number} limit
@@ -4350,11 +4499,11 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(roles) {
+                if(typeof roles !== 'undefined') {
                     payload['roles'] = roles;
                 }
 
@@ -4367,7 +4516,7 @@
             /**
              * Get Team
              *
-             * Get team by its unique ID. All team members have read access for this
+             * Get a team by its unique ID. All team members have read access for this
              * resource.
              *
              * @param {string} teamId
@@ -4392,7 +4541,7 @@
             /**
              * Update Team
              *
-             * Update team by its unique ID. Only team owners have write access for this
+             * Update a team by its unique ID. Only team owners have write access for this
              * resource.
              *
              * @param {string} teamId
@@ -4413,7 +4562,7 @@
 
                 let payload = {};
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
@@ -4426,7 +4575,7 @@
             /**
              * Delete Team
              *
-             * Delete team by its unique ID. Only team owners have write access for this
+             * Delete a team by its unique ID. Only team owners have write access for this
              * resource.
              *
              * @param {string} teamId
@@ -4451,7 +4600,7 @@
             /**
              * Get Team Memberships
              *
-             * Get team members by the team unique ID. All team members have read access
+             * Get a team members by the team unique ID. All team members have read access
              * for this list of resources.
              *
              * @param {string} teamId
@@ -4502,8 +4651,8 @@
              * 
              * Use the 'URL' parameter to redirect the user from the invitation email back
              * to your app. When the user is redirected, use the [Update Team Membership
-             * Status](/docs/client/teams#updateMembershipStatus) endpoint to allow the
-             * user to accept the invitation to the team.
+             * Status](/docs/client/teams#teamsUpdateMembershipStatus) endpoint to allow
+             * the user to accept the invitation to the team.
              * 
              * Please note that in order to avoid a [Redirect
              * Attacks](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.md)
@@ -4539,19 +4688,19 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
-                if(roles) {
+                if(typeof roles !== 'undefined') {
                     payload['roles'] = roles;
                 }
 
-                if(url) {
+                if(typeof url !== 'undefined') {
                     payload['url'] = url;
                 }
 
@@ -4566,7 +4715,7 @@
              *
              * This endpoint allows a user to leave a team or for a team owner to delete
              * the membership of any other team member. You can also use this endpoint to
-             * delete a user membership even if he didn't accept it.
+             * delete a user membership even if it is not accepted.
              *
              * @param {string} teamId
              * @param {string} inviteId
@@ -4596,8 +4745,8 @@
              * Update Team Membership Status
              *
              * Use this endpoint to allow a user to accept an invitation to join a team
-             * after he is being redirected back to your app from the invitation email he
-             * was sent.
+             * after being redirected back to your app from the invitation email recieved
+             * by the user.
              *
              * @param {string} teamId
              * @param {string} inviteId
@@ -4627,11 +4776,11 @@
 
                 let payload = {};
 
-                if(userId) {
+                if(typeof userId !== 'undefined') {
                     payload['userId'] = userId;
                 }
 
-                if(secret) {
+                if(typeof secret !== 'undefined') {
                     payload['secret'] = secret;
                 }
 
@@ -4647,8 +4796,8 @@
             /**
              * List Users
              *
-             * Get a list of all the project users. You can use the query params to filter
-             * your results.
+             * Get a list of all the project's users. You can use the query params to
+             * filter your results.
              *
              * @param {string} search
              * @param {number} limit
@@ -4708,15 +4857,15 @@
 
                 let payload = {};
 
-                if(email) {
+                if(typeof email !== 'undefined') {
                     payload['email'] = email;
                 }
 
-                if(password) {
+                if(typeof password !== 'undefined') {
                     payload['password'] = password;
                 }
 
-                if(name) {
+                if(typeof name !== 'undefined') {
                     payload['name'] = name;
                 }
 
@@ -4729,7 +4878,7 @@
             /**
              * Get User
              *
-             * Get user by its unique ID.
+             * Get a user by its unique ID.
              *
              * @param {string} userId
              * @throws {Error}
@@ -4777,7 +4926,7 @@
             /**
              * Get User Logs
              *
-             * Get user activity logs list by its unique ID.
+             * Get a user activity logs list by its unique ID.
              *
              * @param {string} userId
              * @throws {Error}
@@ -4801,7 +4950,7 @@
             /**
              * Get User Preferences
              *
-             * Get user preferences by its unique ID.
+             * Get the user preferences by its unique ID.
              *
              * @param {string} userId
              * @throws {Error}
@@ -4825,8 +4974,8 @@
             /**
              * Update User Preferences
              *
-             * Update user preferences by its unique ID. You can pass only the specific
-             * settings you wish to update.
+             * Update the user preferences by its unique ID. You can pass only the
+             * specific settings you wish to update.
              *
              * @param {string} userId
              * @param {object} prefs
@@ -4846,7 +4995,7 @@
 
                 let payload = {};
 
-                if(prefs) {
+                if(typeof prefs !== 'undefined') {
                     payload['prefs'] = prefs;
                 }
 
@@ -4859,7 +5008,7 @@
             /**
              * Get User Sessions
              *
-             * Get user sessions list by its unique ID.
+             * Get the user sessions list by its unique ID.
              *
              * @param {string} userId
              * @throws {Error}
@@ -4883,7 +5032,7 @@
             /**
              * Delete User Sessions
              *
-             * Delete all user sessions by its unique ID.
+             * Delete all user's sessions by using the user's unique ID.
              *
              * @param {string} userId
              * @throws {Error}
@@ -4907,7 +5056,7 @@
             /**
              * Delete User Session
              *
-             * Delete user sessions by its unique ID.
+             * Delete a user sessions by its unique ID.
              *
              * @param {string} userId
              * @param {string} sessionId
@@ -4936,7 +5085,7 @@
             /**
              * Update User Status
              *
-             * Update user status by its unique ID.
+             * Update the user status by its unique ID.
              *
              * @param {string} userId
              * @param {string} status
@@ -4956,7 +5105,7 @@
 
                 let payload = {};
 
-                if(status) {
+                if(typeof status !== 'undefined') {
                     payload['status'] = status;
                 }
 

@@ -10,7 +10,7 @@ use Appwrite\Database\Validator\Authorization;
 
 require_once __DIR__.'/../init.php';
 
-\cli_set_process_title('Webhooks V1 Worker');
+Console::title('Webhooks V1 Worker');
 
 Console::success(APP_NAME.' webhooks worker v1 has started');
 
@@ -34,9 +34,10 @@ class WebhooksV1
         $errors = [];
 
         // Event
-        $projectId = $this->args['projectId'];
-        $event = $this->args['event'];
-        $payload = \json_encode($this->args['payload']);
+        $projectId = $this->args['projectId'] ?? '';
+        $userId = $this->args['userId'] ?? '';
+        $event = $this->args['event'] ?? '';
+        $eventData = \json_encode($this->args['eventData']);
 
         // Webhook
 
@@ -55,6 +56,7 @@ class WebhooksV1
                 continue;
             }
 
+            $id = $webhook['$id'] ?? '';
             $name = $webhook['name'] ?? '';
             $signature = $webhook['signature'] ?? 'not-yet-implemented';
             $url = $webhook['url'] ?? '';
@@ -65,7 +67,7 @@ class WebhooksV1
             $ch = \curl_init($url);
 
             \curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-            \curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            \curl_setopt($ch, CURLOPT_POSTFIELDS, $eventData);
             \curl_setopt($ch, CURLOPT_HEADER, 0);
             \curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             \curl_setopt($ch, CURLOPT_USERAGENT, \sprintf(APP_USERAGENT,
@@ -77,9 +79,12 @@ class WebhooksV1
                 CURLOPT_HTTPHEADER,
                 [
                     'Content-Type: application/json',
-                    'Content-Length: '.\strlen($payload),
+                    'Content-Length: '.\strlen($eventData),
+                    'X-'.APP_NAME.'-Webhook-Id: '.$id,
                     'X-'.APP_NAME.'-Webhook-Event: '.$event,
                     'X-'.APP_NAME.'-Webhook-Name: '.$name,
+                    'X-'.APP_NAME.'-Webhook-User-Id: '.$userId,
+                    'X-'.APP_NAME.'-Webhook-Project-Id: '.$projectId,
                     'X-'.APP_NAME.'-Webhook-Signature: '.$signature,
                 ]
             );

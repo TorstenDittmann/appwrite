@@ -7,20 +7,20 @@
     <br />
 </p>
 
-[![Hacktoberfest](https://badgen.net/badge/hacktoberfest/friendly/pink)](CONTRIBUTING.md)
-[![Discord](https://img.shields.io/discord/564160730845151244?label=discord)](https://appwrite.io/discord)
-[![Docker Pulls](https://badgen.net/docker/pulls/appwrite/appwrite)](https://hub.docker.com/r/appwrite/appwrite)
-[![Travis CI](https://badgen.net/travis/appwrite/appwrite?label=build)](https://travis-ci.com/appwrite/appwrite)
-[![Twitter Account](https://badgen.net/twitter/follow/appwrite_io?label=twitter)](https://twitter.com/appwrite_io)
-[![Follow Appwrite on StackShare](https://badgen.net/badge/follow%20on/stackshare/blue)](https://stackshare.io/appwrite)
+<!--[![Hacktoberfest](https://badgen.net/badge/hacktoberfest/friendly/pink)](CONTRIBUTING.md)-->
+[![Discord](https://img.shields.io/discord/564160730845151244?label=discord&style=flat-square)](https://appwrite.io/discord)
+[![Docker Pulls](https://img.shields.io/docker/pulls/appwrite/appwrite?color=f02e65&style=flat-square)](https://hub.docker.com/r/appwrite/appwrite)
+[![Build Status](https://img.shields.io/travis/com/appwrite/appwrite?style=flat-square)](https://travis-ci.com/appwrite/appwrite)
+[![Twitter Account](https://img.shields.io/twitter/follow/appwrite_io?color=00acee&label=twitter&style=flat-square)](https://twitter.com/appwrite_io)
+[![Follow Appwrite on StackShare](https://img.shields.io/badge/follow%20on-stackshare-blue?style=flat-square)](https://stackshare.io/appwrite)
 
 Appwrite is an end-to-end backend server for Web, Mobile, Native, or Backend apps packaged as a set of Docker<nobr> microservices. Appwrite abstracts the complexity and repetitiveness required to build a modern backend API from scratch and allows you to build secure apps faster.
 
-Using Appwrite, you can easily integrate your app with user authentication & multiple sign-in methods, a database for storing and querying users and team data, storage and file management, image manipulation, schedule CRON tasks, and [more services](https://appwrite.io/docs).
-
-Find out more at: [https://appwrite.io](https://appwrite.io)
+Using Appwrite, you can easily integrate your app with user authentication & multiple sign-in methods, a database for storing and querying users and team data, storage and file management, image manipulation, Cloud Functions, and [more services](https://appwrite.io/docs).
 
 ![Appwrite](public/images/github.png)
+
+Find out more at: [https://appwrite.io](https://appwrite.io)
 
 Table of Contents:
 
@@ -53,7 +53,7 @@ docker run -it --rm \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume "$(pwd)"/appwrite:/usr/src/code/appwrite:rw \
     --entrypoint="install" \
-    appwrite/appwrite:0.7.0 --version 0.7.0
+    appwrite/appwrite:0.8.0
 ```
 
 ### Windows
@@ -65,7 +65,7 @@ docker run -it --rm ^
     --volume //var/run/docker.sock:/var/run/docker.sock ^
     --volume "%cd%"/appwrite:/usr/src/code/appwrite:rw ^
     --entrypoint="install" ^
-    appwrite/appwrite:0.7.0 --version 0.7.0
+    appwrite/appwrite:0.8.0
 ```
 
 #### PowerShell
@@ -75,13 +75,13 @@ docker run -it --rm ,
     --volume /var/run/docker.sock:/var/run/docker.sock ,
     --volume ${pwd}/appwrite:/usr/src/code/appwrite:rw ,
     --entrypoint="install" ,
-    appwrite/appwrite:0.7.0 --version 0.7.0
+    appwrite/appwrite:0.8.0
 ```
 
 Once the Docker installation completes, go to http://localhost to access the Appwrite console from your browser. Please note that on non-linux native hosts, the server might take a few minutes to start after installation completes.
 
 
-For advanced production and custom installation, check out our Docker [environment variables](docs/tutorials/environment-variables.md) docs. You can also use our public [docker-compose.yml](https://appwrite.io/docker-compose.yml) file to manually set up and environment.
+For advanced production and custom installation, check out our Docker [environment variables](https://appwrite.io/docs/environment-variables) docs. You can also use our public [docker-compose.yml](https://gist.github.com/eldadfux/977869ff6bdd7312adfd4e629ee15cc5#file-docker-compose-yml) file to manually set up an environment.
 
 ### Upgrade from an Older Version
 
@@ -94,6 +94,7 @@ Getting started with Appwrite is as easy as creating a new project, choosing you
 * [Getting Started for Web](https://appwrite.io/docs/getting-started-for-web)
 * [Getting Started for Flutter](https://appwrite.io/docs/getting-started-for-flutter)
 * [Getting Started for Server](https://appwrite.io/docs/getting-started-for-server)
+* [Getting Started for CLI](https://appwrite.io/docs/command-line)
 * Getting Started for Android (Coming soon...)
 * Getting Started for iOS (Coming soon...)
 
@@ -102,9 +103,9 @@ Getting started with Appwrite is as easy as creating a new project, choosing you
 * [**Account**](https://appwrite.io/docs/client/account) - Manage current user authentication and account. Track and manage the user sessions, devices, sign-in methods, and security logs.
 * [**Users**](https://appwrite.io/docs/server/users) - Manage and list all project users when in admin mode.
 * [**Teams**](https://appwrite.io/docs/client/teams) - Manage and group users in teams. Manage memberships, invites, and user roles within a team.
-* [**Database**](https://appwrite.io/docs/client/database) - Manage database collections and documents. Read, create, update, and delete documents and filter lists of documents collections using an advanced filter with graph-like capabilities.
+* [**Database**](https://appwrite.io/docs/client/database) - Manage database collections and documents. Read, create, update, and delete documents and filter lists of document collections using advanced filters.
 * [**Storage**](https://appwrite.io/docs/client/storage) - Manage storage files. Read, create, delete, and preview files. Manipulate the preview of your files to fit your app perfectly. All files are scanned by ClamAV and stored in a secure and encrypted way.
-* [**Functions**](https://appwrite.io/docs/server/functions) - Customize your Appwrite server by executing your custom code in an isolate environment, you can trigger your code on any Appwrite system event, manually or using a CRON schedule.
+* [**Functions**](https://appwrite.io/docs/server/functions) - Customize your Appwrite server by executing your custom code in a secure, isolated environment. You can trigger your code on any Appwrite system event, manually or using a CRON schedule.
 * [**Locale**](https://appwrite.io/docs/client/locale) - Track your user's location, and manage your app locale-based data.
 * [**Avatars**](https://appwrite.io/docs/client/avatars) - Manage your users' avatars, countries' flags, browser icons, credit card symbols, and generate QR codes.
 
@@ -115,29 +116,30 @@ For the complete API documentation, visit [https://appwrite.io/docs](https://app
 Below is a list of currently supported platforms and languages. If you wish to help us add support to your platform of choice, you can go over to our [SDK Generator](https://github.com/appwrite/sdk-generator) project and view our [contribution guide](https://github.com/appwrite/sdk-generator/blob/master/CONTRIBUTING.md).
 
 #### Client
-* ✅ [Web](https://github.com/appwrite/sdk-for-js) (Maintained by the Appwrite Team)
-* ✅ [Flutter](https://github.com/appwrite/sdk-for-flutter) (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Web](https://github.com/appwrite/sdk-for-web) (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Flutter](https://github.com/appwrite/sdk-for-flutter) (Maintained by the Appwrite Team)
 
 #### Server
-* ✅ [NodeJS](https://github.com/appwrite/sdk-for-node) (Maintained by the Appwrite Team)
-* ✅ [PHP](https://github.com/appwrite/sdk-for-php) (Maintained by the Appwrite Team)
-* ✅ [Deno](https://github.com/appwrite/sdk-for-deno) - **Beta** (Maintained by the Appwrite Team)
-* ✅ [Ruby](https://github.com/appwrite/sdk-for-ruby) - **Beta** (Maintained by the Appwrite Team)
-* ✅ [Python](https://github.com/appwrite/sdk-for-python) - **Beta** (Maintained by the Appwrite Team)
-* ✅ [Go](https://github.com/appwrite/sdk-for-go) **Work in progress** (Maintained by the Appwrite Team)
-* ✅ [Dart](https://github.com/appwrite/sdk-for-dart) **Work in progress** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [NodeJS](https://github.com/appwrite/sdk-for-node) (Maintained by the Appwrite Team)
+* ✅  &nbsp; [PHP](https://github.com/appwrite/sdk-for-php) (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Deno](https://github.com/appwrite/sdk-for-deno) - **Beta** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Ruby](https://github.com/appwrite/sdk-for-ruby) - **Beta** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Python](https://github.com/appwrite/sdk-for-python) - **Beta** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [.NET](https://github.com/appwrite/sdk-for-dotnet) - **Experimental** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Dart](https://github.com/appwrite/sdk-for-dart) **Experimental** (Maintained by the Appwrite Team)
+* ✅  &nbsp; [Go](https://github.com/appwrite/sdk-for-go) **Work in progress** (Maintained by the Appwrite Team)
 
 Looking for more SDKs? - Help us by contributing a pull request to our [SDK Generator](https://github.com/appwrite/sdk-generator)!
 
 ## Contributing
 
-All code contributions - including those of people having commit access - must go through a pull request and approved by a core developer before being merged. This is to ensure proper review of all the code.
+All code contributions - including those of people having commit access - must go through a pull request and be approved by a core developer before being merged. This is to ensure a proper review of all the code.
 
 We truly ❤️ pull requests! If you wish to help, you can learn more about how you can contribute to this project in the [contribution guide](CONTRIBUTING.md).
 
 ## Security
 
-For security issues, kindly email us at [security@appwrite.io](mailto:security@appwrite.io) instead of posting a public issue in GitHub.
+For security issues, kindly email us at [security@appwrite.io](mailto:security@appwrite.io) instead of posting a public issue on GitHub.
 
 ## Follow Us
 

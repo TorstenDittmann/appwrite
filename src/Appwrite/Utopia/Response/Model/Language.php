@@ -11,18 +11,21 @@ class Language extends Model
     {
         $this
             ->addRule('name', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Language name.',
+                'default' => '',
                 'example' => 'Italian',
             ])
             ->addRule('code', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Language two-character ISO 639-1 codes.',
+                'default' => '',
                 'example' => 'it',
             ])
             ->addRule('nativeName', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Language native name.',
+                'default' => '',
                 'example' => 'Italiano',
             ])
         ;

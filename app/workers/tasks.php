@@ -11,7 +11,7 @@ use Cron\CronExpression;
 
 require_once __DIR__.'/../init.php';
 
-\cli_set_process_title('Tasks V1 Worker');
+Console::title('Tasks V1 Worker');
 
 Console::success(APP_NAME.' tasks worker v1 has started');
 
@@ -82,7 +82,7 @@ class TasksV1
 
         // Reschedule
 
-        $cron = CronExpression::factory($task->getAttribute('schedule'));
+        $cron = new CronExpression($task->getAttribute('schedule'));
         $next = (int) $cron->getNextRunDate()->format('U');
         $headers = (\is_array($task->getAttribute('httpHeaders', []))) ? $task->getAttribute('httpHeaders', []) : [];
 

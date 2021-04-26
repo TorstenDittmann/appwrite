@@ -3,8 +3,8 @@
 global $cli;
 
 use Appwrite\ClamAV\Network;
-use Appwrite\Storage\Device\Local;
-use Appwrite\Storage\Storage;
+use Utopia\Storage\Device\Local;
+use Utopia\Storage\Storage;
 use Utopia\App;
 use Utopia\CLI\Console;
 use Utopia\Domains\Domain;
@@ -21,41 +21,41 @@ $cli
         Console::log("\n".'👩‍⚕️ Running '.APP_NAME.' Doctor for version '.App::getEnv('_APP_VERSION', 'UNKNOWN').' ...'."\n");
 
         Console::log('Checking for production best practices...');
-        
+
         $domain = new Domain(App::getEnv('_APP_DOMAIN'));
 
         if(!$domain->isKnown() || $domain->isTest()) {
-            Console::log('🔴 Hostname has a public suffix ('.$domain->get().')');
+            Console::log('🔴 Hostname has no public suffix ('.$domain->get().')');
         }
         else {
             Console::log('🟢 Hostname has a public suffix ('.$domain->get().')');
         }
-        
+
         $domain = new Domain(App::getEnv('_APP_DOMAIN_TARGET'));
 
         if(!$domain->isKnown() || $domain->isTest()) {
-            Console::log('🔴 CNAME target has a public suffix ('.$domain->get().')');
+            Console::log('🔴 CNAME target has no public suffix ('.$domain->get().')');
         }
         else {
             Console::log('🟢 CNAME target has a public suffix ('.$domain->get().')');
         }
-        
+
         if(App::getEnv('_APP_OPENSSL_KEY_V1') === 'your-secret-key' || empty(App::getEnv('_APP_OPENSSL_KEY_V1'))) {
-            Console::log('🔴 Using a unique secret key for encryption');
+            Console::log('🔴 Not using a unique secret key for encryption');
         }
         else {
             Console::log('🟢 Using a unique secret key for encryption');
         }
 
         if(App::getEnv('_APP_ENV', 'development') !== 'production') {
-            Console::log('🔴 App enviornment is set for production');
+            Console::log('🔴 App environment is set for development');
         }
         else {
-            Console::log('🟢 App enviornment is set for production');
+            Console::log('🟢 App environment is set for production');
         }
 
         if('enabled' !== App::getEnv('_APP_OPTIONS_ABUSE', 'disabled')) {
-            Console::log('🔴 Abuse protection is enabled');
+            Console::log('🔴 Abuse protection is disabled');
         }
         else {
             Console::log('🟢 Abuse protection is enabled');
@@ -74,7 +74,7 @@ $cli
         else {
             Console::log('🟢 Console access limits are enabled');
         }
-        
+
         if('enabled' !== App::getEnv('_APP_OPTIONS_FORCE_HTTPS', 'disabled')) {
             Console::log('🔴 HTTPS force option is disabled');
         }
@@ -113,7 +113,8 @@ $cli
 
         if(App::getEnv('_APP_STORAGE_ANTIVIRUS') === 'enabled') { // Check if scans are enabled
             try {
-                $antiVirus = new Network('clamav', 3310);
+                $antiVirus = new Network(App::getEnv('_APP_STORAGE_ANTIVIRUS_HOST', 'clamav'),
+                    (int) App::getEnv('_APP_STORAGE_ANTIVIRUS_PORT', 3310));
 
                 if((@$antiVirus->ping())) {
                     Console::success('AntiVirus...........connected 👍');
@@ -133,7 +134,7 @@ $cli
             $mail->Subject = 'Test SMTP Connection';
             $mail->Body = 'Hello World';
             $mail->AltBody = 'Hello World';
-    
+
             $mail->send();
             Console::success('SMTP................connected 👍');
         } catch (\Throwable $th) {
@@ -143,7 +144,7 @@ $cli
         $host = App::getEnv('_APP_STATSD_HOST', 'telegraf');
         $port = App::getEnv('_APP_STATSD_PORT', 8125);
 
-        if($fp = @\fsockopen('udp://'.$host, $port, $errCode, $errStr, 2)){   
+        if($fp = @\fsockopen('udp://'.$host, $port, $errCode, $errStr, 2)){
             Console::success('StatsD..............connected 👍');
             \fclose($fp);
         } else {
@@ -153,7 +154,7 @@ $cli
         $host = App::getEnv('_APP_INFLUXDB_HOST', '');
         $port = App::getEnv('_APP_INFLUXDB_PORT', '');
 
-        if($fp = @\fsockopen($host, $port, $errCode, $errStr, 2)){   
+        if($fp = @\fsockopen($host, $port, $errCode, $errStr, 2)){
             Console::success('InfluxDB............connected 👍');
             \fclose($fp);
         } else {
@@ -179,7 +180,7 @@ $cli
             else {
                 Console::error('🔴 '.$key.' Volume is unreadable');
             }
-            
+
             if (\is_writable($device->getRoot())) {
                 Console::success('🟢 '.$key.' Volume is writeable');
             }
@@ -203,9 +204,9 @@ $cli
 
             $percentage = (($device->getPartitionTotalSpace() - $device->getPartitionFreeSpace())
             / $device->getPartitionTotalSpace()) * 100;
-    
+
             $message = $key.' Volume has '.Storage::human($device->getPartitionFreeSpace()) . ' free space ('.\round($percentage, 2).'% used)';
-    
+
             if ($percentage < 80) {
                 Console::success('🟢 ' . $message);
             }
@@ -213,12 +214,12 @@ $cli
                 Console::error('🔴 ' . $message);
             }
         }
-        
+
         try {
             if(App::isProduction()) {
                 Console::log('');
                 $version = \json_decode(@\file_get_contents(App::getEnv('_APP_HOME', 'http://localhost').'/v1/health/version'), true);
-                
+
                 if ($version && isset($version['version'])) {
                     if(\version_compare($version['version'], App::getEnv('_APP_VERSION', 'UNKNOWN')) === 0) {
                         Console::info('You are running the latest version of '.APP_NAME.'! 🥳');
