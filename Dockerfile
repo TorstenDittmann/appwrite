@@ -12,13 +12,13 @@ RUN composer update --ignore-platform-reqs --optimize-autoloader \
     --no-plugins --no-scripts --prefer-dist \
     `if [ "$TESTING" != "true" ]; then echo "--no-dev"; fi`
 
-FROM php:8.0.0RC3-cli-alpine as step1
+FROM php:8.0-cli-alpine as step1
 
-ENV PHP_REDIS_VERSION=5.3.2 \
-    PHP_SWOOLE_VERSION=v4.5.6 \
+ENV PHP_REDIS_VERSION=5.3.4 \
+    PHP_SWOOLE_VERSION=v4.6.6 \
     PHP_IMAGICK_VERSION=master \
-    PHP_YAML_VERSION=2.2.0b2 \
-    PHP_MAXMINDDB_VERSION=v1.8.0
+    PHP_YAML_VERSION=2.2.1 \
+    PHP_MAXMINDDB_VERSION=v1.10.0
 
 RUN \
   apk add --no-cache --virtual .deps \
@@ -39,48 +39,43 @@ RUN docker-php-ext-install sockets
 
 RUN \
   # Redis Extension
-  git clone https://github.com/phpredis/phpredis.git && \
+  git clone --depth 1 --branch $PHP_REDIS_VERSION https://github.com/phpredis/phpredis.git && \
   cd phpredis && \
-  git checkout $PHP_REDIS_VERSION && \
   phpize && \
   ./configure && \
   make && make install && \
   cd .. && \
   ## Swoole Extension
-  git clone https://github.com/swoole/swoole-src.git && \
+  git clone --depth 1 --branch $PHP_SWOOLE_VERSION https://github.com/swoole/swoole-src.git && \
   cd swoole-src && \
-  git checkout $PHP_SWOOLE_VERSION && \
   phpize && \
   ./configure --enable-http2 && \
   make && make install && \
   cd .. && \
   ## Imagick Extension
-  git clone https://github.com/Imagick/imagick && \
+  git clone --depth 1 --branch $PHP_IMAGICK_VERSION https://github.com/Imagick/imagick && \
   cd imagick && \
-  git checkout $PHP_IMAGICK_VERSION && \
   phpize && \
   ./configure && \
   make && make install && \
   cd .. && \
   ## YAML Extension
-  git clone https://github.com/php/pecl-file_formats-yaml && \
+  git clone --depth 1 --branch $PHP_YAML_VERSION https://github.com/php/pecl-file_formats-yaml && \
   cd pecl-file_formats-yaml && \
-  git checkout $PHP_YAML_VERSION && \
   phpize && \
   ./configure && \
   make && make install && \
   cd .. && \
   ## Maxminddb extension
-  git clone https://github.com/maxmind/MaxMind-DB-Reader-php.git && \
+  git clone --depth 1 --branch $PHP_MAXMINDDB_VERSION https://github.com/maxmind/MaxMind-DB-Reader-php.git && \
   cd MaxMind-DB-Reader-php && \
-  git checkout $PHP_MAXMINDDB_VERSION && \
   cd ext && \
   phpize && \
   ./configure && \
   make && make install && \
   cd ../..
 
-FROM php:8.0.0RC3-cli-alpine as final
+FROM php:8.0-cli-alpine as final
 
 LABEL maintainer="team@appwrite.io"
 
@@ -88,6 +83,7 @@ ARG VERSION=dev
 
 ENV _APP_SERVER=swoole \
     _APP_ENV=production \
+    _APP_LOCALE=en \
     _APP_DOMAIN=localhost \
     _APP_DOMAIN_TARGET=localhost \
     _APP_HOME=https://appwrite.io \
@@ -97,6 +93,8 @@ ENV _APP_SERVER=swoole \
     _APP_OPENSSL_KEY_V1=your-secret-key \
     _APP_STORAGE_LIMIT=10000000 \
     _APP_STORAGE_ANTIVIRUS=enabled \
+    _APP_STORAGE_ANTIVIRUS_HOST=clamav \
+    _APP_STORAGE_ANTIVIRUS_PORT=3310 \
     _APP_REDIS_HOST=redis \
     _APP_REDIS_PORT=6379 \
     _APP_DB_HOST=mariadb \
@@ -108,15 +106,25 @@ ENV _APP_SERVER=swoole \
     _APP_INFLUXDB_PORT=8086 \
     _APP_STATSD_HOST=telegraf \
     _APP_STATSD_PORT=8125 \
-    _APP_SMTP_HOST=smtp \
-    _APP_SMTP_PORT=25 \
+    _APP_SMTP_HOST= \
+    _APP_SMTP_PORT= \
+    _APP_SMTP_SECURE= \
+    _APP_SMTP_USERNAME= \
+    _APP_SMTP_PASSWORD= \
     _APP_FUNCTIONS_TIMEOUT=900 \
     _APP_FUNCTIONS_CONTAINERS=10 \
+    _APP_FUNCTIONS_CPUS=1 \
+    _APP_FUNCTIONS_MEMORY=128 \
+    _APP_FUNCTIONS_MEMORY_SWAP=128 \
     _APP_SETUP=self-hosted \
-    _APP_VERSION=$VERSION
-#ENV _APP_SMTP_SECURE ''
-#ENV _APP_SMTP_USERNAME ''
-#ENV _APP_SMTP_PASSWORD ''
+    _APP_VERSION=$VERSION \
+    _APP_USAGE_STATS=enabled \
+    # 14 Days = 1209600 s
+    _APP_MAINTENANCE_RETENTION_EXECUTION=1209600 \
+    _APP_MAINTENANCE_RETENTION_AUDIT=1209600 \
+    # 1 Day = 86400 s
+    _APP_MAINTENANCE_RETENTION_ABUSE=86400 \
+    _APP_MAINTENANCE_INTERVAL=86400
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -175,6 +183,7 @@ RUN mkdir -p /storage/uploads && \
 
 # Executables
 RUN chmod +x /usr/local/bin/doctor && \
+    chmod +x /usr/local/bin/maintenance && \
     chmod +x /usr/local/bin/install && \
     chmod +x /usr/local/bin/migrate && \
     chmod +x /usr/local/bin/schedule && \

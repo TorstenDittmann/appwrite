@@ -7,33 +7,49 @@ use Appwrite\Utopia\Response\Model;
 
 class Domain extends Model
 {
+    /**
+     * @var bool
+     */
+    protected $public = false;
+    
     public function __construct()
     {
         $this
             ->addRule('$id', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Domain ID.',
+                'default' => '',
                 'example' => '5e5ea5c16897e',
             ])
             ->addRule('domain', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Domain name.',
+                'default' => '',
                 'example' => 'appwrite.company.com',
             ])
             ->addRule('registerable', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Registerable domain name.',
+                'default' => '',
                 'example' => 'company.com',
             ])
             ->addRule('tld', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'TLD name.',
+                'default' => '',
                 'example' => 'com',
             ])
             ->addRule('verification', [
-                'type' => 'boolean',
+                'type' => self::TYPE_BOOLEAN,
                 'description' => 'Verification process status.',
+                'default' => false,
                 'example' => true,
+            ])
+            ->addRule('certificateId', [
+                'type' => self::TYPE_STRING,
+                'description' => 'Certificate ID.',
+                'default' => '',
+                'example' => '6ejea5c13377e',
             ])
         ;
     }

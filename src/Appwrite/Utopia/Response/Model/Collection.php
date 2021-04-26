@@ -11,35 +11,39 @@ class Collection extends Model
     {
         $this
             ->addRule('$id', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Collection ID.',
+                'default' => '',
                 'example' => '5e5ea5c16897e',
             ])
             ->addRule('$permissions', [
                 'type' => Response::MODEL_PERMISSIONS,
                 'description' => 'Collection permissions.',
+                'default' => new \stdClass,
                 'example' => new \stdClass,
                 'array' => false,
             ])
             ->addRule('name', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Collection name.',
+                'default' => '',
                 'example' => 'Movies',
             ])
             ->addRule('dateCreated', [
-                'type' => 'integer',
+                'type' => self::TYPE_INTEGER,
                 'description' => 'Collection creation date in Unix timestamp.',
+                'default' => 0,
                 'example' => 1592981250,
             ])
             ->addRule('dateUpdated', [
-                'type' => 'integer',
+                'type' => self::TYPE_INTEGER,
                 'description' => 'Collection creation date in Unix timestamp.',
+                'default' => 0,
                 'example' => 1592981550,
             ])
             ->addRule('rules', [
                 'type' => Response::MODEL_RULE,
                 'description' => 'Collection rules.',
-                'example' => [],
                 'default' => [],
                 'array' => true,
             ])

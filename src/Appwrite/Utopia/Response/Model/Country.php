@@ -11,13 +11,15 @@ class Country extends Model
     {
         $this
             ->addRule('name', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Country name.',
+                'default' => '',
                 'example' => 'United States',
             ])
             ->addRule('code', [
-                'type' => 'string',
+                'type' => self::TYPE_STRING,
                 'description' => 'Country two-character ISO 3166-1 alpha code.',
+                'default' => '',
                 'example' => 'US',
             ])
         ;

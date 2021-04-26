@@ -2,6 +2,7 @@
 
 $protocol       = $this->getParam('protocol', '');
 $domain         = $this->getParam('domain', '');
+$endpoint       = $this->getParam('endpoint', '');
 $platforms      = $this->getParam('platforms', []);
 $version        = $this->getParam('version', '0.0.0');
 $isDev          = $this->getParam('isDev', false);
@@ -10,7 +11,7 @@ $analytics      = $this->getParam('analytics', 'UA-26264668-9');
 $mode           = $this->getParam('mode', '');
 $canonical      = $this->getParam('canonical', '');
 $locale         = $this->getParam('locale', null);
-$environments   = $this->getParam('environments', null);
+$runtimes       = $this->getParam('runtimes', null);
 
 if(!empty($platforms)) {
     $platforms = array_map(function($platform) {
@@ -56,7 +57,7 @@ if(!empty($platforms)) {
     <?php if (!empty($canonical)): ?>
         <meta property="og:url" content="<?php echo $canonical; ?>" />
     <?php endif; ?>
-    <meta property="og:image"  content="<?php echo $protocol; ?>://<?php echo $domain; ?>/images/logo.png?v=<?php echo APP_CACHE_BUSTER; ?>" />
+    <meta property="og:image"  content="<?php echo $endpoint; ?>/images/logo.png?v=<?php echo APP_CACHE_BUSTER; ?>" />
     <script>
 
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -71,12 +72,13 @@ if(!empty($platforms)) {
             VERSION: '<?php echo $version; ?>',
             CACHEBUSTER: '<?php echo $version; ?>/<?php echo APP_CACHE_BUSTER; ?>',
             PROTOCOL: '<?php echo $protocol; ?>',
+            ENDPOINT: '<?php echo $endpoint; ?>',
             DOMAIN: '<?php echo $domain; ?>',
             HOME: '<?php echo $this->escape($this->getParam('home')); ?>',
             SETUP: '<?php echo $this->escape($this->getParam('setup')); ?>',
             API: '/v1',
             PROJECT: 'console',
-            ENVIRONMENTS: <?php echo json_encode($environments); ?>,
+            RUNTIMES: <?php echo json_encode($runtimes); ?>,
             PLATFORMS: <?php echo json_encode($platforms); ?>,
             LOCALE: '<?php echo $this->escape($locale->getText('settings.locale')); ?>',
             PREFIX: '<?php echo $this->escape($this->getParam('prefix')); ?>',
