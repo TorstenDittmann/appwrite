@@ -255,28 +255,34 @@ App::get('/v1/account/sessions/oauth2/:provider')
         /** @var Utopia\Swoole\Request $request */
         /** @var Appwrite\Utopia\Response $response */
         /** @var Utopia\Database\Document $project */
-
+        var_dump("a");
         $protocol = $request->getProtocol();
         $callback = $protocol.'://'.$request->getHostname().'/v1/account/sessions/oauth2/callback/'.$provider.'/'.$project->getId();
         $appId = $project->getAttribute('providers', [])[$provider.'Appid'] ?? '';
         $appSecret = $project->getAttribute('providers', [])[$provider.'Secret'] ?? '{}';
+        var_dump("b");
 
         if (!empty($appSecret) && isset($appSecret['version'])) {
             $key = App::getEnv('_APP_OPENSSL_KEY_V' . $appSecret['version']);
             $appSecret = OpenSSL::decrypt($appSecret['data'], $appSecret['method'], $key, 0, \hex2bin($appSecret['iv']), \hex2bin($appSecret['tag']));
         }
+        var_dump("c");
 
         if (empty($appId) || empty($appSecret)) {
             throw new Exception('This provider is disabled. Please configure the provider app ID and app secret key from your ' . APP_NAME . ' console to continue.', 412);
         }
+        var_dump("d");
 
         $className = 'Appwrite\\Auth\\OAuth2\\'.\ucfirst($provider);
+        var_dump("e");
 
         if (!\class_exists($className)) {
             throw new Exception('Provider is not supported', 501);
         }
+        var_dump("f");
 
         $oauth2 = new $className($appId, $appSecret, $callback, ['success' => $success, 'failure' => $failure], $scopes);
+        var_dump("g");
 
         $response
             ->addHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
