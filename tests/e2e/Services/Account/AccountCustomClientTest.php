@@ -382,7 +382,9 @@ class AccountCustomClientTest extends Scope
 
     public function testConvertAnonymousAccountOAuth2()
     {
+        var_dump("start: testConvertAnonymousAccountOAuth2");
         $session = $this->testCreateAnonymousAccount();
+        var_dump(1);
         $provider = 'mock';
         $appId = '1';
         $secret = '123456';
@@ -396,6 +398,7 @@ class AccountCustomClientTest extends Scope
             'x-appwrite-project' => $this->getProject()['$id'],
             'cookie' => 'a_session_'.$this->getProject()['$id'].'=' . $session,
         ]));
+        var_dump(2);
 
         $this->assertEquals($response['headers']['status-code'], 200);
 
@@ -411,6 +414,7 @@ class AccountCustomClientTest extends Scope
             'appId' => $appId,
             'secret' => $secret,
         ]);
+        var_dump(3);
 
         $this->assertEquals($response['headers']['status-code'], 200);
 
@@ -423,8 +427,10 @@ class AccountCustomClientTest extends Scope
             'success' => 'http://localhost/v1/mock/tests/general/oauth2/success',
             'failure' => 'http://localhost/v1/mock/tests/general/oauth2/failure',
         ]);
+        var_dump(4);
         
         $session = $this->client->parseCookie((string)$response['headers']['set-cookie'])['a_session_'.$this->getProject()['$id']];
+        var_dump(5);
 
         $this->assertEquals(200, $response['headers']['status-code']);
         $this->assertEquals('success', $response['body']['result']);
@@ -435,11 +441,13 @@ class AccountCustomClientTest extends Scope
             'x-appwrite-project' => $this->getProject()['$id'],
             'cookie' => 'a_session_'.$this->getProject()['$id'].'=' . $session,
         ]));
+        var_dump(6);
 
         $this->assertEquals($response['headers']['status-code'], 200);
         $this->assertEquals($response['body']['$id'], $userId);
         $this->assertEquals($response['body']['name'], 'User Name');
         $this->assertEquals($response['body']['email'], 'user@localhost.test');
+        var_dump(7);
 
         return [];
     }
