@@ -25,3 +25,7 @@ steps:
 - script: |
     docker-compose exec appwrite test
   displayName: 'Run Tests'
+
+- script: |
+    docker-compose logs appwrite
+  displayName: 'Show Logs'
