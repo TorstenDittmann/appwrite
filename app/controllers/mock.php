@@ -482,7 +482,7 @@ App::get('/v1/mock/tests/general/oauth2/success')
     ->inject('response')
     ->action(function ($response) {
         /** @var Appwrite\Utopia\Response $response */
-
+        var_dump("reached success");
         $response->json([
             'result' => 'success',
         ]);
@@ -496,6 +496,7 @@ App::get('/v1/mock/tests/general/oauth2/failure')
     ->inject('response')
     ->action(function ($response) {
         /** @var Appwrite\Utopia\Response $response */
+        var_dump("reached failure");
 
         $response
             ->setStatusCode(Response::STATUS_CODE_BAD_REQUEST)
